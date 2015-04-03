@@ -1,0 +1,6 @@
+# GIT
+*.swp
+
+# Node and NPM
+node_modules
+
