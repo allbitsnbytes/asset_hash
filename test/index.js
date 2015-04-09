@@ -257,10 +257,15 @@ describe('Test hashing functionality', function() {
 		removeTestDir(tmpDir);
 	})
 
+	it('Should return an object if only one file is hashed', function() {
+		var hashInfo = hasher.hashFiles(testFiles[0]);
+
+		expect(hashInfo).to.be.an('object');
+	})
+
 	it('Should hash single file', function() {
 		var	hashInfo = hasher.hashFiles(testFiles[0]);
 
-		expect(hashInfo).to.be.an('object');
 		expect(hashInfo.hashed).to.be.true;
 		expect(hashInfo.oldFile).to.equal(testFiles[0]);
 		expect(hashInfo.newFile).to.have.length.greaterThan(hashInfo.oldFile.length);
@@ -304,6 +309,12 @@ describe('Test hashing functionality', function() {
 		expect(hash1Info.newFile).to.equal(hash2Info.newFile);
 	})
 
+	it('Should return an array if multiple files are hashed', function() {
+		var hashInfo = hasher.hashFiles(testFiles);
+
+		expect(hashInfo).to.be.a('array');
+	})
+
 	it('Should hash multiple individual files', function() {
 		var hashInfo = hasher.hashFiles(testFiles);
 
@@ -313,25 +324,5 @@ describe('Test hashing functionality', function() {
 		});
 	})
 
-	// it('Should hash an array of files', function() {
-	// 	var	hashedFiles = hasher.hashFiles(testFiles);
-
-	// 	expect(hashedFiles).to.not.be.empty;
-	// 	expect(hashedFiles).to.be.an('array').and.have.lengthOf(testFiles.length);
-
-	// 	testFiles.forEach(function(file, index) {
-	// 		expect(file).to.be.a('string').with.length.lt(hashedFiles[index].length);
-	// 	})
-	// })
-
-	// it('Should match default hash filename template', function() {
-	// 	expect(hasher.hashFiles('./test_style.css')).to.match(/^[a-zA-Z0-9]+-[a-zA-Z0-9]+\.[a-zA-Z0-9]+/);
-	// })
-	
-	// it('Should match custom hash filename template', function() {
-	// 	hasher.set({template: '_<%= name %>_<%= hash %><%= ext %>'});
-
-	// 	expect(hasher.hashFiles('style.css')).to.match(/^_[a-zA-Z0-9]+_[a-zA-Z0-9]+\.[a-zA-Z0-9]+/);
-	// })
 	
 });
