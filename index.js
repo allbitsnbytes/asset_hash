@@ -45,6 +45,12 @@ var AssetHasher = function() {
 	config.length = 10;
 
 	/**
+	 * Whether to replace original file or keep original file and create hashed file
+	 * @type {String}
+	 */
+	config.replace = false;
+
+	/**
 	 * The name and path to asset manifest file
 	 * @type {String}
 	 */
@@ -91,7 +97,7 @@ var AssetHasher = function() {
 			oldFile: file,
 			newFile: ''
 		};
-console.log('hash: '+hash);
+
 		keepOriginal = keepOriginal || true;
 
 		// If file was hashed, set result object and rename/create hash file
@@ -131,7 +137,7 @@ console.log('hash: '+hash);
 			return config;
 		}
 
-		return config[key] || ''
+		return config.hasOwnProperty(key) ? config[key] : '';
 	};
 
 

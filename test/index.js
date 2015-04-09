@@ -164,16 +164,7 @@ describe('Test methods exist', function() {
 });
 
 
-describe('Test method functionality', function() {
-
-	beforeEach(function() {
-		createTestDir(tmpDir);
-		addTestFiles(testFiles);
-	})
-
-	afterEach(function() {
-		removeTestDir(tmpDir);
-	})
+describe('Test config functionality', function() {
 
 	it('Should get all config', function() {
 		var config = hasher.get();
@@ -182,7 +173,7 @@ describe('Test method functionality', function() {
 	})
 
 	it('Should have default config values', function() {
-		var defaults = ['hasher', 'length', 'manifest', 'template'];
+		var defaults = ['hasher', 'length', 'manifest', 'replace', 'template'];
 		var	config = hasher.get();
 
 		expect(config).to.have.all.keys(defaults);
@@ -215,37 +206,6 @@ describe('Test method functionality', function() {
 		expect(hasher.get('key2abc')).to.be.equal('val2abc');
 	})
 
-	it('Should hash single file', function() {
-		var	hashInfo = hasher.hashFiles(testFiles[0]);
-
-		expect(hashInfo).to.be.an('object');
-		expect(hashInfo.hashed).to.be.true;
-		expect(hashInfo.oldFile).to.equal(testFiles[0]);
-		expect(hashInfo.newFile).to.have.length.greaterThan(hashInfo.oldFile.length);
-		expect(fs.lstatSync(hashInfo.newFile).isFile()).to.be.ok;
-	})
-
-	// it('Should hash an array of files', function() {
-	// 	var	hashedFiles = hasher.hashFiles(testFiles);
-
-	// 	expect(hashedFiles).to.not.be.empty;
-	// 	expect(hashedFiles).to.be.an('array').and.have.lengthOf(testFiles.length);
-
-	// 	testFiles.forEach(function(file, index) {
-	// 		expect(file).to.be.a('string').with.length.lt(hashedFiles[index].length);
-	// 	})
-	// })
-
-	// it('Should match default hash filename template', function() {
-	// 	expect(hasher.hashFiles('./test_style.css')).to.match(/^[a-zA-Z0-9]+-[a-zA-Z0-9]+\.[a-zA-Z0-9]+/);
-	// })
-	
-	// it('Should match custom hash filename template', function() {
-	// 	hasher.set({template: '_<%= name %>_<%= hash %><%= ext %>'});
-
-	// 	expect(hasher.hashFiles('style.css')).to.match(/^_[a-zA-Z0-9]+_[a-zA-Z0-9]+\.[a-zA-Z0-9]+/);
-	// })
-
 });
 
 
@@ -277,4 +237,55 @@ describe('Test default config is valid', function() {
 		expect(template).to.not.be.empty;
 	})
 
+	it('Should have a replace option', function() {
+		var replace = hasher.get('replace');
+
+		expect(replace).to.be.false;
+	})
+
+});
+
+
+describe('Test hashing functionality', function() {
+
+	beforeEach(function() {
+		createTestDir(tmpDir);
+		addTestFiles(testFiles);
+	})
+
+	afterEach(function() {
+		removeTestDir(tmpDir);
+	})
+
+	it('Should hash single file', function() {
+		var	hashInfo = hasher.hashFiles(testFiles[0]);
+
+		expect(hashInfo).to.be.an('object');
+		expect(hashInfo.hashed).to.be.true;
+		expect(hashInfo.oldFile).to.equal(testFiles[0]);
+		expect(hashInfo.newFile).to.have.length.greaterThan(hashInfo.oldFile.length);
+		expect(fs.lstatSync(hashInfo.newFile).isFile()).to.be.ok;
+	})
+
+	// it('Should hash an array of files', function() {
+	// 	var	hashedFiles = hasher.hashFiles(testFiles);
+
+	// 	expect(hashedFiles).to.not.be.empty;
+	// 	expect(hashedFiles).to.be.an('array').and.have.lengthOf(testFiles.length);
+
+	// 	testFiles.forEach(function(file, index) {
+	// 		expect(file).to.be.a('string').with.length.lt(hashedFiles[index].length);
+	// 	})
+	// })
+
+	// it('Should match default hash filename template', function() {
+	// 	expect(hasher.hashFiles('./test_style.css')).to.match(/^[a-zA-Z0-9]+-[a-zA-Z0-9]+\.[a-zA-Z0-9]+/);
+	// })
+	
+	// it('Should match custom hash filename template', function() {
+	// 	hasher.set({template: '_<%= name %>_<%= hash %><%= ext %>'});
+
+	// 	expect(hasher.hashFiles('style.css')).to.match(/^_[a-zA-Z0-9]+_[a-zA-Z0-9]+\.[a-zA-Z0-9]+/);
+	// })
+	
 });
