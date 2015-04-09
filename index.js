@@ -5,6 +5,7 @@
 var _			= require('lodash');
 var	crypto		= require('crypto');
 var	fs			= require('fs');
+var glob		= require('glob');
 var	path		= require('path');
 
 
@@ -91,10 +92,13 @@ var AssetHasher = function() {
 	 * @return {object} Hash results
 	 */
 	var hashFile = function(file, options) {
-		var ext = path.extname(file);
-		var contents = fs.readFileSync(file);
-		var hash = generateHash(contents, options.hasher, options.length);
-		var result = {
+		var ext 		= path.extname(file);
+		var name		= path.basename(file, ext);
+		var filePath	= path.dirname(file);
+		var contents 	= fs.readFileSync(file);
+		var hash 		= generateHash(contents, options.hasher, options.length);
+		var patterns 	= [];
+		var result 		= {
 			hashed: false,
 			oldFile: file,
 			newFile: ''
@@ -103,14 +107,31 @@ var AssetHasher = function() {
 		// If file was hashed, set result object and rename/create hash file
 		if (hash !== '') {
 			result.hashed = true;
-			result.newFile =  path.dirname(file) + '/' + _.template(options.template)({
-				name: path.basename(file, ext),
+			result.newFile =  filePath + '/' + _.template(options.template)({
+				name: name,
 				hash: hash,
 				ext: ext
 			});
 
+			// Pattern to match previously hashed files
+			patterns.push(filePath + '/' + _.template(options.template)({
+				name: name,
+				hash: '=HASHREGEX=',
+				ext: ext
+			}).replace('=HASHREGEX=', '[0-9a-zA-Z_-]*'));
+
+			// Find any previously hashed file versions
+			hashedOldFiles = glob.sync(patterns.join('|'));
+
+			// Delete files
+			hashedOldFiles.forEach(function(file) {
+				fs.unlinkSync(file);
+			});
+
+			// Create new hashed file
 			fs.createReadStream(result.oldFile).pipe(fs.createWriteStream(result.newFile));
 
+			// Remove original file if necessary
 			if (options.replace) {
 				fs.unlinkSync(result.oldFile);
 			}
