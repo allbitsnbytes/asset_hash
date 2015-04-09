@@ -270,8 +270,15 @@ describe('Test hashing functionality', function() {
 	it('Should hash single file and keep original file', function() {
 		var hashInfo = hasher.hashFiles(testFiles[0], {replace: false});
 
-		expect(fs.lstatSync(hashInfo.oldFile).isFile()).to.be.ok;
 		expect(fs.lstatSync(hashInfo.newFile).isFile()).to.be.ok;
+		expect(fs.lstatSync(hashInfo.oldFile).isFile()).to.be.ok;
+	})
+
+	it('Should hash single file and replace original file', function() {
+		var hashInfo = hasher.hashFiles(testFiles[0], {replace: true});
+
+		expect(fs.lstatSync(hashInfo.newFile).isFile()).to.be.ok;
+		expect(fs.lstatSync.bind(fs.lstatSync, hashInfo.oldFile)).to.throw(Error, "ENOENT, no such file or directory");
 	})
 
 	// it('Should hash an array of files', function() {

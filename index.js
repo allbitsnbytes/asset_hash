@@ -110,6 +110,10 @@ var AssetHasher = function() {
 			});
 
 			fs.createReadStream(result.oldFile).pipe(fs.createWriteStream(result.newFile));
+
+			if (options.replace) {
+				fs.unlinkSync(result.oldFile);
+			}
 		}
 
 		return result;
