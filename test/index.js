@@ -290,12 +290,20 @@ describe('Test hashing functionality', function() {
 		fs.appendFileSync(testFiles[0], 'appending more test content');
 
 		var hash2Info = hasher.hashFiles(testFiles[0], {replace: false});
-		
+
 		expect(hash1Info.oldFile).to.equal(hash2Info.oldFile);
 		expect(fs.lstatSync(hash1Info.oldFile).isFile()).to.be.ok;
 		expect(fs.lstatSync(hash2Info.newFile).isFile()).to.be.ok;
 		expect(fs.lstatSync.bind(fs.lstatSync, hash1Info.newFile)).to.throw(Error, "ENOENT, no such file or directory");
 	})
+
+	it('Should have same hash for single unchanged file which is hashed multiple times', function() {
+		var hash1Info = hasher.hashFiles(testFiles[0], {replace: false});
+		var hash2Info = hasher.hashFiles(testFiles[0], {replace: false});
+
+		expect(hash1Info.newFile).to.equal(hash2Info.newFile);
+	})
+
 
 	// it('Should hash an array of files', function() {
 	// 	var	hashedFiles = hasher.hashFiles(testFiles);
