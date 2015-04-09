@@ -304,6 +304,14 @@ describe('Test hashing functionality', function() {
 		expect(hash1Info.newFile).to.equal(hash2Info.newFile);
 	})
 
+	it('Should hash multiple individual files', function() {
+		var hashInfo = hasher.hashFiles(testFiles);
+
+		testFiles.forEach(function(file, index) {
+			expect(hashInfo[index].oldFile).to.equal(file);
+			expect(fs.lstatSync(hashInfo[index].newFile).isFile()).to.be.ok;
+		});
+	})
 
 	// it('Should hash an array of files', function() {
 	// 	var	hashedFiles = hasher.hashFiles(testFiles);
