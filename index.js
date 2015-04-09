@@ -68,11 +68,13 @@ var AssetHasher = function() {
 	 *
 	 * @private
 	 * @param {string} contents File contents for file to hash
+	 * @param {string} hash The has type to use
+	 * @param {number} length The length of the hash
 	 * @return {string} The generated hash
 	 */
-	var generateHash = function(contents) {
+	var generateHash = function(contents, hash, length) {
 		if (contents) {
-			return crypto.createHash(config.hasher).update(contents).digest('hex').slice(0, config.length);
+			return crypto.createHash(hash).update(contents).digest('hex').slice(0, length);
 		}
 
 		return '';
@@ -84,26 +86,24 @@ var AssetHasher = function() {
 	 *
 	 * @private
 	 * @param {string} file The file to hash
-	 * @param {string} hash The has to use
+	 * @param {object} options Options to use to hash the file
 	 * @param {boolean} keepOriginal Whether to keep unhashed original file or hash original file
 	 * @return {object} Hash results
 	 */
-	var hashFile = function(file, hash, keepOriginal) {
+	var hashFile = function(file, options) {
 		var ext = path.extname(file);
 		var contents = fs.readFileSync(file);
-		var hash = generateHash(contents);
+		var hash = generateHash(contents, options.hasher, options.length);
 		var result = {
 			hashed: false,
 			oldFile: file,
 			newFile: ''
 		};
 
-		keepOriginal = keepOriginal || true;
-
 		// If file was hashed, set result object and rename/create hash file
 		if (hash !== '') {
 			result.hashed = true;
-			result.newFile =  path.dirname(file) + '/' + _.template(config.template)({
+			result.newFile =  path.dirname(file) + '/' + _.template(options.template)({
 				name: path.basename(file, ext),
 				hash: hash,
 				ext: ext
@@ -149,12 +149,17 @@ var AssetHasher = function() {
 	 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing.
 	 */
 	var hashFiles = function(paths, options) {
-		var result = [];
+		var curConfig = _.clone(config);
+		var results = [];
+
+		// Set config options to use for this hash session
+		_.assign(curConfig, options);
 
 		if (!_.isArray(paths)) {
 			paths = [paths];
 		}
 
+		// Process files for each path
 		paths.forEach(function(path) {
 			fileInfo = fs.lstatSync(path);
 
@@ -168,15 +173,15 @@ var AssetHasher = function() {
 					if (curFileInfo.isDirectory()) {
 						hashFiles(curPath, options);
 					} else if (curFileInfo.isFile()) {
-						result.push(hashFile(curPath));
+						results.push(hashFile(curPath, curConfig));
 					}
 				});
 			} else if (fileInfo.isFile()) {
-				result.push(hashFile(path));
+				results.push(hashFile(path, curConfig));
 			}
 		});
 
-		return result.length > 1 ? result : result.shift();
+		return results.length > 1 ? results : results.shift();
 	};
 
 
