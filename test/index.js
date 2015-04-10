@@ -167,6 +167,10 @@ describe('Test methods exist', function() {
 		expect(hasher.hashFiles).to.be.a('function');
 	})
 
+	it('Should have a getAsset method', function() {
+		expect(hasher.getAssets).to.be.a('function');
+	})
+
 	it('Should have a saveManifest method', function() {
 		expect(hasher.saveManifest).to.be.a('function');
 	})
@@ -378,7 +382,13 @@ describe('Test asset library and manifest', function() {
 	it('Should return an object for asset library', function() {
 		var assets = hasher.getAssets();
 
-		expect(assets).to.be.an.Object;
+		expect(assets).to.be.an('object');
+	})
+
+	it('Should have same number of entries as total number of files hashed', function() {
+		var assets = hasher.getAssets();
+
+		expect(_.keys(assets).length).to.equal(testFiles.length);
 	})
 
 });

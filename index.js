@@ -137,7 +137,7 @@ var AssetHasher = function() {
 			}
 
 			// Add file to or update asset library
-			assets[result.newFile] = result;
+			assets[result.oldFile] = result;
 		}
 
 		return result;
@@ -223,7 +223,7 @@ var AssetHasher = function() {
 	 * @return {object} The asset library
 	 */
 	var getAssets = function() {
-
+		return assets;
 	};
 
 
