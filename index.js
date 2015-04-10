@@ -35,31 +35,31 @@ var AssetHasher = function() {
 
 	/**
 	 * The algorithm to use to generate hash
-	 * @type {String}
+	 * @type {string}
 	 */
 	config.hasher = 'sha1';
 
 	/**
 	 * The length of the generated hash.  Only used if generated hash is longer than length
-	 * @type {Number}
+	 * @type {number}
 	 */
 	config.length = 10;
 
 	/**
 	 * Whether to replace original file or keep original file and create hashed file
-	 * @type {String}
+	 * @type {string}
 	 */
 	config.replace = false;
 
 	/**
 	 * The name and path to asset manifest file
-	 * @type {String}
+	 * @type {string}
 	 */
 	config.manifest = 'assets.json';
 
 	/**
 	 * Template for hashed filename
-	 * @type {String}
+	 * @type {string}
 	 */
 	config.template = '<%= name %>-<%= hash %><%= ext %>';
 
@@ -186,24 +186,28 @@ var AssetHasher = function() {
 
 		// Process files for each path
 		paths.forEach(function(path) {
-			fileInfo = fs.lstatSync(path);
+			filePaths = glob.sync(path);
 
-			if (fileInfo.isDirectory()) {
-				files = fs.readdirSync(path);
+			filePaths.forEach(function(filePath) {
+				fileInfo = fs.lstatSync(filePath);
 
-				files.forEach(function(file) {
-					var curPath = path + '/' + file;
-					var curFileInfo = fs.lstatSync(curPath);
+				if (fileInfo.isDirectory()) {
+					dirFiles = fs.readdirSync(filePath);
 
-					if (curFileInfo.isDirectory()) {
-						hashFiles(curPath, options);
-					} else if (curFileInfo.isFile()) {
-						results.push(hashFile(curPath, curConfig));
-					}
-				});
-			} else if (fileInfo.isFile()) {
-				results.push(hashFile(path, curConfig));
-			}
+					dirFiles.forEach(function(dirFile) {
+						var curPath = filePath + '/' + dirFile;
+						var curFileInfo = fs.lstatSync(curPath);
+
+						if (curFileInfo.isDirectory()) {
+							hashFiles(curPath, options);
+						} else if (curFileInfo.isFile()) {
+							results.push(hashFile(curPath, curConfig));
+						}
+					});
+				} else if (fileInfo.isFile()) {
+					results.push(hashFile(filePath, curConfig));
+				}
+			})
 		});
 
 		return results.length > 1 ? results : results.shift();

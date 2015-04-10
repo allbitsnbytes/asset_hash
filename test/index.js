@@ -7,7 +7,9 @@ var	assert		= require('assert');
 var	crypto		= require('crypto');
 var	expect		= require('chai').expect;
 var fs			= require('fs');
+var glob		= require('glob');
 var	hasher		= require('../');
+var path		= require('path');
 
 
 // Utility Functions
@@ -18,20 +20,20 @@ var	hasher		= require('../');
  */
 var tmpDir		= './tmp/';
 var testFiles	= [
-	tmpDir + 'logo.png',
-	tmpDir + 'styles.css',
-	tmpDir + 'main.js'
+	tmpDir + 'img/bg.jpg',
+	tmpDir + 'img/favicon.png',
+	tmpDir + 'img/logo.png',
+	tmpDir + 'css/landing.css',
+	tmpDir + 'css/promos.css',
+	tmpDir + 'css/styles.css',
+	tmpDir + 'js/main.js',
+	tmpDir + 'js/shoestring.min.js'
 ];
 
-/**
- * Setup test environment
- */
-function createTestDir(path) {
-	fs.mkdirSync(path);
-}
 
 /**
  * Clean up  test environment
+ * @param {string} path The path to directory to remove
  */
 function removeTestDir(path) {
 	var files = [];
@@ -55,21 +57,39 @@ function removeTestDir(path) {
 
 /**
  * Add test files
- * @param {Array} files Test files to create
+ * @param {array} files Test files to create
  */
 function addTestFiles(files) {
 	if (!_.isArray(files)) {
 		files = [files];
 	}
 
+	// Loop and add files
 	files.forEach(function(file, index) {
+		var filePath 	= path.dirname(file).split('/');
+		var curDir 		= '';
+
+		// Create parent directories for file if necessary
+		while (filePath.length > 0) {
+			curDir += filePath.shift();
+
+			try {
+				fs.lstatSync(curDir);
+			} 
+			catch(e) {
+				fs.mkdirSync(curDir);
+			}
+			
+			curDir += '/';
+		}	
+
 		fs.writeFileSync(file, 'test file '+index);
 	});
 }
 
 /**
  * Remove test files
- * @param  {Array} files The files to remove
+ * @param  {array} files The files to remove
  */
 function removeTestFiles(files) {
 	if (!_.isArray(files)) {
@@ -92,18 +112,8 @@ describe('Test if Asset Hasher is defined', function() {
 
 
 describe('Test utility functions', function() {
-	it('Should create a "tmp" directory', function() {
-		try {
-			createTestDir(tmpDir);
 
-			expect(fs.lstatSync(tmpDir).isDirectory()).to.be.ok;
-		}
-		catch(e) {
-			expect(createTestDir.bind(createTestDir, tmpDir)).to.throw(Error, "EEXIST, file already exists");
-		}
-	})
-
-	it('Should add test file', function() {
+	it('Should add a test file', function() {
 		addTestFiles(testFiles[0]);
 
 		expect(fs.lstatSync(testFiles[0]).isFile()).to.be.ok;
@@ -249,7 +259,6 @@ describe('Test default config is valid', function() {
 describe('Test hashing functionality', function() {
 
 	beforeEach(function() {
-		createTestDir(tmpDir);
 		addTestFiles(testFiles);
 	})
 
@@ -323,6 +332,5 @@ describe('Test hashing functionality', function() {
 			expect(fs.lstatSync(hashInfo[index].newFile).isFile()).to.be.ok;
 		});
 	})
-
 	
 });
