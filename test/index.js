@@ -272,6 +272,15 @@ describe('Test hashing functionality', function() {
 		expect(hashInfo).to.be.an('object');
 	})
 
+	it('Should return object with default fields', function() {
+		var hashInfo = hasher.hashFiles(testFiles[0]);
+
+		expect(hashInfo.type).to.be.string;
+		expect(hashInfo.hashed).to.exist;
+		expect(hashInfo.newFile).to.be.string;
+		expect(hashInfo.oldFile).to.be.string;
+	})
+
 	it('Should hash single file', function() {
 		var	hashInfo = hasher.hashFiles(testFiles[0]);
 
@@ -332,7 +341,7 @@ describe('Test hashing functionality', function() {
 			expect(fs.lstatSync(hashInfo[index].newFile).isFile()).to.be.ok;
 		});
 	})
-	
+
 	it('Should hash files specified by single glob entry', function() {
 		var testGlob = tmpDir + 'css/*';
 		var files = glob.sync(testGlob);
@@ -359,6 +368,17 @@ describe('Test hashing functionality', function() {
 			expect(fileInfo.hashed).to.be.true;
 			expect(fs.lstatSync(fileInfo.newFile).isFile()).to.be.ok;
 		});
+	})
+
+});
+
+
+describe('Test asset library and manifest', function() {
+
+	it('Should return an object for asset library', function() {
+		var assets = hasher.getAssets();
+
+		expect(assets).to.be.an.Object;
 	})
 
 });

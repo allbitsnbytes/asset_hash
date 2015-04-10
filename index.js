@@ -123,7 +123,7 @@ var AssetHasher = function() {
 			// Find any previously hashed file versions
 			hashedOldFiles = glob.sync(patterns.join('|'));
 
-			// Delete files
+			// Delete old hash file(s)
 			hashedOldFiles.forEach(function(file) {
 				fs.unlinkSync(file);
 			});
@@ -135,6 +135,9 @@ var AssetHasher = function() {
 			if (options.replace) {
 				fs.unlinkSync(result.oldFile);
 			}
+
+			// Add file to or update asset library
+			assets[result.newFile] = result;
 		}
 
 		return result;
@@ -215,7 +218,17 @@ var AssetHasher = function() {
 
 
 	/**
-	 * Save assets reference to asset manifest file
+	 * Get asset library.  This is an object with information from all files that have been hashed
+	 *
+	 * @return {object} The asset library
+	 */
+	var getAssets = function() {
+
+	};
+
+
+	/**
+	 * Save assets library to manifest file
 	 *
 	 * @param {object} options Options to configure the manifest file generated
 	 */
@@ -232,6 +245,7 @@ var AssetHasher = function() {
 		set: set,
 		get: get,
 		hashFiles: hashFiles,
+		getAssets: getAssets,
 		saveManifest: saveManifest
 	};
 
