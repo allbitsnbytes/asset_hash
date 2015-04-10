@@ -1,5 +1,5 @@
 /**
- * Tests for hasher module
+ * Test Asset Hash
  */
 
 var _			= require('lodash');
