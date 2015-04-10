@@ -333,4 +333,16 @@ describe('Test hashing functionality', function() {
 		});
 	})
 	
+	it('Should hash files specified by single glob entry', function() {
+		var testGlob = tmpDir + 'css/*';
+		var files = glob.sync(testGlob);
+		var hashInfo = hasher.hashFiles(testGlob);
+
+		expect(files.length).to.equal(hashInfo.length);
+
+		hashInfo.forEach(function(fileInfo) {
+			expect(fileInfo.hashed).to.be.true;
+			expect(fs.lstatSync(fileInfo.newFile).isFile()).to.be.ok;
+		});
+	})	
 });
