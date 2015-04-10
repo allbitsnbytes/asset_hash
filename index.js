@@ -233,7 +233,12 @@ var AssetHasher = function() {
 	 * @param {object} options Options to configure the manifest file generated
 	 */
 	var saveManifest = function(options) {
+		var curConfig = _.clone(config);
+		
+		// Set config options to use for t
+		_.assign(curConfig, options);
 
+		fs.writeFileSync(curConfig.manifest, JSON.stringify(assets));
 	};
 
 

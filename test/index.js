@@ -391,4 +391,26 @@ describe('Test asset library and manifest', function() {
 		expect(_.keys(assets).length).to.equal(testFiles.length);
 	})
 
+	it('Should save asset manifest file', function() {
+		var manifestFile = hasher.get('manifest');
+
+		hasher.saveManifest();
+
+		expect(fs.lstatSync(manifestFile).isFile()).to.be.ok;
+
+		removeTestFiles(manifestFile);
+	})
+
+	it('Should save asset manifest file with custom name provided in saveManifest options', function() {
+		var oldManifestFile = hasher.get('manifest');
+		var manifestFile = 'test_manifest.json';
+
+		hasher.saveManifest({manifest: manifestFile});
+
+		expect(manifestFile).to.not.equal(oldManifestFile);
+		expect(fs.lstatSync(manifestFile).isFile()).to.be.ok;
+
+		removeTestFiles(manifestFile);
+	})
+
 });
