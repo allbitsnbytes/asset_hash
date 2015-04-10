@@ -344,5 +344,21 @@ describe('Test hashing functionality', function() {
 			expect(fileInfo.hashed).to.be.true;
 			expect(fs.lstatSync(fileInfo.newFile).isFile()).to.be.ok;
 		});
-	})	
+	})
+
+	it('Should hash files specified by multiple glob entries', function() {
+		var test1Glob = tmpDir + 'css/*';
+		var test2Glob = tmpDir + 'js/*';
+		var files1 = glob.sync(test1Glob);
+		var files2 = glob.sync(test2Glob);
+		var hashInfo = hasher.hashFiles([test1Glob, test2Glob]);
+
+		expect(files1.concat(files2).length).to.equal(hashInfo.length);
+
+		hashInfo.forEach(function(fileInfo) {
+			expect(fileInfo.hashed).to.be.true;
+			expect(fs.lstatSync(fileInfo.newFile).isFile()).to.be.ok;
+		});
+	})
+
 });
