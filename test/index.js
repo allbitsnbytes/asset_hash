@@ -3,7 +3,6 @@
  */
 
 var _			= require('lodash');
-var	assert		= require('assert');
 var	crypto		= require('crypto');
 var	expect		= require('chai').expect;
 var fs			= require('fs');
@@ -12,12 +11,8 @@ var	hasher		= require('../');
 var path		= require('path');
 
 
-// Utility Functions
+// Test variables
 
-/**
- * Test directory
- * @type {string}
- */
 var tmpDir		= './tmp/';
 var testFiles	= [
 	tmpDir + 'img/bg.jpg',
@@ -30,6 +25,8 @@ var testFiles	= [
 	tmpDir + 'js/shoestring.min.js'
 ];
 
+
+// Utility Functions
 
 /**
  * Clean up  test environment
@@ -141,7 +138,7 @@ describe('Test utility functions', function() {
 		})
 	})
 
-	it('Should remove "tmp" directory', function() {
+	it('Should remove "' + tmpDir + '" directory', function() {
 		try {
 			removeTestDir(tmpDir);
 		}
@@ -155,25 +152,13 @@ describe('Test utility functions', function() {
 
 describe('Test methods exist', function() {
 
-	it('Should have a set method', function() {
-		expect(hasher.set).to.be.a('function');
-	})
+	var methods = ['get', 'set', 'hashFiles', 'getAssets', 'saveManifest'];
 
-	it('Should have a get method', function() {
-		expect(hasher.get).to.be.a('function');
-	})
-
-	it('Should have a hash method', function() {
-		expect(hasher.hashFiles).to.be.a('function');
-	})
-
-	it('Should have a getAsset method', function() {
-		expect(hasher.getAssets).to.be.a('function');
-	})
-
-	it('Should have a saveManifest method', function() {
-		expect(hasher.saveManifest).to.be.a('function');
-	})
+	methods.forEach(function(method) {
+		it('Should have a ' + method + ' method', function() {
+			expect(hasher[method]).to.be.a('function');
+		})
+	});
 
 });
 
@@ -257,6 +242,17 @@ describe('Test default config is valid', function() {
 		expect(replace).to.be.false;
 	})
 
+	it('Should have a valid template format', function() {
+		hasher.set({template: '<%= name %>_<%= hash %>.<%= ext %>'});
+
+		addTestFiles(testFiles[0]);
+		
+		var hashInfo = hasher.hashFiles(testFiles[0]);
+
+		expect(hashInfo.oldFile).to.equal(hashInfo.newFile.replace('_' + hashInfo.hash, ''));
+
+		removeTestDir(tmpDir);
+	})
 });
 
 
@@ -279,10 +275,11 @@ describe('Test hashing functionality', function() {
 	it('Should return object with default fields', function() {
 		var hashInfo = hasher.hashFiles(testFiles[0]);
 
-		expect(hashInfo.type).to.be.string;
 		expect(hashInfo.hashed).to.exist;
-		expect(hashInfo.newFile).to.be.string;
-		expect(hashInfo.oldFile).to.be.string;
+		expect(hashInfo.newFile).to.be.a('string');
+		expect(hashInfo.oldFile).to.be.a('string');
+		expect(hashInfo.hash).to.be.a('string');
+		expect(hashInfo.type).to.be.a('string');
 	})
 
 	it('Should hash single file', function() {

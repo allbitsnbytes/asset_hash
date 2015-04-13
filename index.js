@@ -61,7 +61,7 @@ var AssetHasher = function() {
 	 * Template for hashed filename
 	 * @type {string}
 	 */
-	config.template = '<%= name %>-<%= hash %><%= ext %>';
+	config.template = '<%= name %>-<%= hash %>.<%= ext %>';
 
 
 	/**
@@ -101,7 +101,9 @@ var AssetHasher = function() {
 		var result 		= {
 			hashed: false,
 			oldFile: file,
-			newFile: ''
+			newFile: '',
+			hash: hash,
+			type: ext.replace('.', '')
 		};
 
 		// If file was hashed, set result object and rename/create hash file
@@ -110,14 +112,14 @@ var AssetHasher = function() {
 			result.newFile =  filePath + '/' + _.template(options.template)({
 				name: name,
 				hash: hash,
-				ext: ext
+				ext: ext.replace('.', '')
 			});
 
 			// Pattern to match previously hashed files
 			patterns.push(filePath + '/' + _.template(options.template)({
 				name: name,
 				hash: '=HASHREGEX=',
-				ext: ext
+				ext: ext.replace('.', '')
 			}).replace('=HASHREGEX=', '[0-9a-zA-Z_-]*'));
 
 			// Find any previously hashed file versions
