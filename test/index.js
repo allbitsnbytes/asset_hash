@@ -152,7 +152,7 @@ describe('Test utility functions', function() {
 
 describe('Test methods exist', function() {
 
-	var methods = ['get', 'set', 'hashFiles', 'getAssets', 'saveManifest'];
+	var methods = ['get', 'set', 'hashFiles', 'getAsset', 'getAssets', 'saveManifest', 'updateAsset'];
 
 	methods.forEach(function(method) {
 		it('Should have a ' + method + ' method', function() {
@@ -369,8 +369,44 @@ describe('Test hashing functionality', function() {
 
 describe('Test asset library and manifest', function() {
 
+	beforeEach(function() {
+		addTestFiles(testFiles);
+	})
+
+	afterEach(function() {
+		removeTestDir(tmpDir);
+	})
+
 	it('Should return an object for asset library', function() {
-		expect(hasher.getAssets()).to.be.an('object');
+		hasher.hashFiles(testFiles);
+
+		var info = hasher.getAsset(testFiles[0]);
+
+		expect(info).to.be.an('object');
+		expect(info.oldFile).to.equal(testFiles[0]);
+	})
+
+	it('Should return null if asset library entery does not exist', function() {
+		hasher.hashFiles(testFiles);
+
+		expect(hasher.getAsset('this-is-a-bogus-entry-asdgir82')).to.be.null;
+	})
+
+	it('Should update asset library entry', function() {
+		hasher.hashFiles(testFiles);
+
+		var data = hasher.getAsset(testFiles[0]);
+		var prefixed = 'testupdate_' + data.newFile;
+
+		hasher.updateAsset(testFiles[0], {newFile: prefixed});
+
+		var updatedData = hasher.getAsset(testFiles[0]);
+
+		expect(updatedData.newFile).to.equal(prefixed);
+	})
+
+	it('Should return object for assets library', function() {
+		expect(hasher.getAssets()).to.be.a('object');
 	})
 
 	it('Should have same number of entries as total number of files hashed', function() {

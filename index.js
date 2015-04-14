@@ -234,6 +234,11 @@ var AssetHasher = function() {
 	};
 
 
+	var getAsset = function(file) {
+		return _.isObject(assets[file]) ? assets[file] : null;
+	};
+
+
 	/**
 	 * Get asset library.  This is an object with information from all files that have been hashed
 	 *
@@ -241,6 +246,19 @@ var AssetHasher = function() {
 	 */
 	var getAssets = function() {
 		return assets;
+	};
+
+
+	/**
+	 * Update asset in asset library.
+	 *
+	 * @param {string} file The path to the file to update
+	 * @param {object} data The options keys and values to update.  If key is not present in for file, key and value will be added
+	 */
+	var updateAsset = function(file, data) {
+		if (_.isObject(assets[file]) && _.isObject(data)) {
+			_.assign(assets[file], data);
+		}
 	};
 
 
@@ -273,10 +291,12 @@ var AssetHasher = function() {
 	 */
 
 	return {
-		set: set,
 		get: get,
+		set: set,
 		hashFiles: hashFiles,
+		getAsset: getAsset,
 		getAssets: getAssets,
+		updateAsset: updateAsset,
 		saveManifest: saveManifest,
 		getHashers: getHashers
 	};
