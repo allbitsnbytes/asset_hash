@@ -15,14 +15,14 @@ var path		= require('path');
 
 var tmpDir		= './tmp/';
 var testFiles	= [
-	tmpDir + 'img/bg.jpg',
-	tmpDir + 'img/favicon.png',
-	tmpDir + 'img/logo.png',
-	tmpDir + 'css/landing.css',
-	tmpDir + 'css/promos.css',
-	tmpDir + 'css/styles.css',
-	tmpDir + 'js/main.js',
-	tmpDir + 'js/shoestring.min.js'
+	path.join(tmpDir, 'img/bg.jpg'),
+	path.join(tmpDir, 'img/favicon.png'),
+	path.join(tmpDir, 'img/logo.png'),
+	path.join(tmpDir, 'css/landing.css'),
+	path.join(tmpDir, 'css/promos.css'),
+	path.join(tmpDir, 'css/styles.css'),
+	path.join(tmpDir, 'js/main.js'),
+	path.join(tmpDir, 'js/shoestring.min.js')
 ];
 
 
@@ -32,14 +32,14 @@ var testFiles	= [
  * Clean up  test environment
  * @param {string} path The path to directory to remove
  */
-function removeTestDir(path) {
+function removeTestDir(dirPath) {
 	var files = [];
 
-	if(fs.lstatSync(path).isDirectory()) {
-		files = fs.readdirSync(path);
+	if(fs.lstatSync(dirPath).isDirectory()) {
+		files = fs.readdirSync(dirPath);
 
 		files.forEach(function(file, index) {
-			var curPath = path + "/" + file;
+			var curPath = path.join(dirPath, file);
 
 			if(fs.lstatSync(curPath).isDirectory()) { 
 				removeTestDir(curPath);
@@ -48,9 +48,10 @@ function removeTestDir(path) {
 			}
 		});
 
-		fs.rmdirSync(path);
+		fs.rmdirSync(dirPath);
     }
 }
+
 
 /**
  * Add test files
@@ -68,7 +69,7 @@ function addTestFiles(files) {
 
 		// Create parent directories for file if necessary
 		while (filePath.length > 0) {
-			curDir += filePath.shift();
+			curDir = path.join(curDir, filePath.shift());
 
 			try {
 				fs.lstatSync(curDir);
@@ -76,13 +77,12 @@ function addTestFiles(files) {
 			catch(e) {
 				fs.mkdirSync(curDir);
 			}
-			
-			curDir += '/';
 		}	
 
 		fs.writeFileSync(file, 'test file '+index);
 	});
 }
+
 
 /**
  * Remove test files
@@ -141,7 +141,7 @@ describe('Test utility functions', function() {
 	it('Should remove "' + tmpDir + '" directory', function() {
 		try {
 			removeTestDir(tmpDir);
-		}
+		} 
 		catch(e) {
 			expect(removeTestDir.bind(removeTestDir, tmpDir)).to.throw(Error, "ENOENT, no such file or directory");
 		}
@@ -172,11 +172,10 @@ describe('Test config functionality', function() {
 	})
 
 	it('Should have default config values', function() {
-		var defaults = ['hasher', 'length', 'manifest', 'replace', 'template'];
+		var defaults = ['hasher', 'length', 'manifest', 'path', 'replace', 'template'];
 		var	config = hasher.get();
 
 		expect(config).to.have.all.keys(defaults);
-		expect(_.keys(config)).to.have.length(defaults.length);
 	})
 
 	it('Should get config value', function() {
@@ -191,13 +190,7 @@ describe('Test config functionality', function() {
 		expect(bogusValue).to.be.a('string').and.be.empty;
 	})
 
-	it('Should set config', function() {
-		hasher.set({'key1abc': 'val1abc'});
-
-		expect(hasher.get('key1abc')).to.be.equal('val1abc');
-	})
-
-	it('Should set config value without deleting previous entries', function() {
+	it('Should set config value and also not delete previous entries', function() {
 		hasher.set({'key1abc': 'val1abc'});
 		hasher.set({'key2abc': 'val2abc'});
 
@@ -219,27 +212,23 @@ describe('Test default config is valid', function() {
 	})
 
 	it('Should have a valid length', function() {
-		var length = hasher.get('length');
-
-		expect(length).to.be.a('number').and.be.at.least(10);
+		expect(hasher.get('length')).to.be.a('number').and.be.at.least(10);
 	})
 
 	it('Should have a manifest file', function() {
-		var manifest = hasher.get('manifest');
+		expect(hasher.get('manifest')).to.match(/[a-zA-Z0-9_/\-]+\.json/)
+	})
 
-		expect(manifest).to.match(/[a-zA-Z0-9_/\-]+\.json/)
+	it('Should have a path', function() {
+		expect(hasher.get('path')).to.be.a('string');
 	})
 
 	it('Should have a hashed filename template', function() {
-		var template = hasher.get('template');
-
-		expect(template).to.not.be.empty;
+		expect(hasher.get('template')).to.not.be.empty;
 	})
 
 	it('Should have a replace option', function() {
-		var replace = hasher.get('replace');
-
-		expect(replace).to.be.false;
+		expect(hasher.get('replace')).to.be.a('boolean');
 	})
 
 	it('Should have a valid template format', function() {
@@ -266,10 +255,12 @@ describe('Test hashing functionality', function() {
 		removeTestDir(tmpDir);
 	})
 
-	it('Should return an object if only one file is hashed', function() {
-		var hashInfo = hasher.hashFiles(testFiles[0]);
+	it('Should get a list of hashers', function() {
+		expect(hasher.getHashers()).to.be.a('array').and.have.length.greaterThan(0);
+	})
 
-		expect(hashInfo).to.be.an('object');
+	it('Should return an object if only one file is hashed', function() {
+		expect(hasher.hashFiles(testFiles[0])).to.be.an('object');
 	})
 
 	it('Should return object with default fields', function() {
@@ -329,9 +320,7 @@ describe('Test hashing functionality', function() {
 	})
 
 	it('Should return an array if multiple files are hashed', function() {
-		var hashInfo = hasher.hashFiles(testFiles);
-
-		expect(hashInfo).to.be.a('array');
+		expect(hasher.hashFiles(testFiles)).to.be.a('array');
 	})
 
 	it('Should hash multiple individual files', function() {
@@ -344,7 +333,7 @@ describe('Test hashing functionality', function() {
 	})
 
 	it('Should hash files specified by single glob entry', function() {
-		var testGlob = tmpDir + 'css/*';
+		var testGlob = path.join(tmpDir, 'css/*');
 		var files = glob.sync(testGlob);
 		var hashInfo = hasher.hashFiles(testGlob);
 
@@ -357,8 +346,8 @@ describe('Test hashing functionality', function() {
 	})
 
 	it('Should hash files specified by multiple glob entries', function() {
-		var test1Glob = tmpDir + 'css/*';
-		var test2Glob = tmpDir + 'js/*';
+		var test1Glob = path.join(tmpDir, 'css/*');
+		var test2Glob = path.join(tmpDir, 'js/*');
 		var files1 = glob.sync(test1Glob);
 		var files2 = glob.sync(test2Glob);
 		var hashInfo = hasher.hashFiles([test1Glob, test2Glob]);
@@ -377,15 +366,11 @@ describe('Test hashing functionality', function() {
 describe('Test asset library and manifest', function() {
 
 	it('Should return an object for asset library', function() {
-		var assets = hasher.getAssets();
-
-		expect(assets).to.be.an('object');
+		expect(hasher.getAssets()).to.be.an('object');
 	})
 
 	it('Should have same number of entries as total number of files hashed', function() {
-		var assets = hasher.getAssets();
-
-		expect(_.keys(assets).length).to.equal(testFiles.length);
+		expect(_.keys(hasher.getAssets()).length).to.equal(testFiles.length);
 	})
 
 	it('Should save asset manifest file', function() {

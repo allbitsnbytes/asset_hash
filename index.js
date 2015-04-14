@@ -58,6 +58,12 @@ var AssetHasher = function() {
 	config.manifest = 'assets.json';
 
 	/**
+	 * Path where to save manifest file
+	 * @type {string}
+	 */
+	config.path = '.';
+
+	/**
 	 * Template for hashed filename
 	 * @type {string}
 	 */
@@ -109,18 +115,18 @@ var AssetHasher = function() {
 		// If file was hashed, set result object and rename/create hash file
 		if (hash !== '') {
 			result.hashed = true;
-			result.newFile =  filePath + '/' + _.template(options.template)({
+			result.newFile =  path.join(filePath, _.template(options.template)({
 				name: name,
 				hash: hash,
 				ext: ext.replace('.', '')
-			});
+			}));
 
 			// Pattern to match previously hashed files
-			patterns.push(filePath + '/' + _.template(options.template)({
+			patterns.push(path.join(filePath, _.template(options.template)({
 				name: name,
 				hash: '=HASHREGEX=',
 				ext: ext.replace('.', '')
-			}).replace('=HASHREGEX=', '[0-9a-zA-Z_-]*'));
+			})).replace('=HASHREGEX=', '[0-9a-zA-Z_-]*'));
 
 			// Find any previously hashed file versions
 			hashedOldFiles = glob.sync(patterns.join('|'));
@@ -159,7 +165,7 @@ var AssetHasher = function() {
 	/**
 	 * Get config option for specified key.
 	 *
-	 * @param {*} key The key for find value for.  If not present and empty string will be returned.
+	 * @param {*} key The key for find value for.  If not present and empty string will be returned.  If key is undefined/none provided then the whole config object will be returned.
 	 * @return {*} Config value for specified key
 	 */
 	var get = function(key) {
@@ -190,8 +196,8 @@ var AssetHasher = function() {
 		}
 
 		// Process files for each path
-		paths.forEach(function(path) {
-			filePaths = glob.sync(path);
+		paths.forEach(function(filePaths) {
+			filePaths = glob.sync(filePaths);
 
 			filePaths.forEach(function(filePath) {
 				fileInfo = fs.lstatSync(filePath);
@@ -200,7 +206,7 @@ var AssetHasher = function() {
 					dirFiles = fs.readdirSync(filePath);
 
 					dirFiles.forEach(function(dirFile) {
-						var curPath = filePath + '/' + dirFile;
+						var curPath = path.join(filePath, dirFile);
 						var curFileInfo = fs.lstatSync(curPath);
 
 						if (curFileInfo.isDirectory()) {
@@ -237,11 +243,20 @@ var AssetHasher = function() {
 	var saveManifest = function(options) {
 		var curConfig = _.clone(config);
 		
-		// Set config options to use for t
 		_.assign(curConfig, options);
 
-		fs.writeFileSync(curConfig.manifest, JSON.stringify(assets));
+		fs.writeFileSync(path.join(curConfig.path, curConfig.manifest), JSON.stringify(assets));
 	};
+
+
+	/**
+	 * Get list of valid hashers
+	 *
+	 * @return {array} List of available hashers
+	 */
+	var getHashers = function() {
+		return crypto.getHashes();
+	}
 
 
 	/**
@@ -253,7 +268,8 @@ var AssetHasher = function() {
 		get: get,
 		hashFiles: hashFiles,
 		getAssets: getAssets,
-		saveManifest: saveManifest
+		saveManifest: saveManifest,
+		getHashers: getHashers
 	};
 
 }
