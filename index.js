@@ -64,6 +64,13 @@ var AssetHasher = function() {
 	config.path = '.';
 
 	/**
+	 * Set this to false to skip saving hashed files.  Hashed filename will be generated and added to asset library but not saved to file system.
+	 * The reason for this feature is to allow build scripts like gulp to write the files themselves.
+	 * @type {boolean}
+	 */
+	config.save = true;
+
+	/**
 	 * Template for hashed filename
 	 * @type {string}
 	 */
@@ -136,8 +143,10 @@ var AssetHasher = function() {
 				fs.unlinkSync(file);
 			});
 
-			// Create new hashed file
-			fs.createReadStream(result.oldFile).pipe(fs.createWriteStream(result.newFile));
+			// Create new hashed file unless instructed to skip
+			if (options.save) {
+				fs.createReadStream(result.oldFile).pipe(fs.createWriteStream(result.newFile));
+			}
 
 			// Remove original file if necessary
 			if (options.replace) {

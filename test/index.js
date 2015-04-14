@@ -172,7 +172,7 @@ describe('Test config functionality', function() {
 	})
 
 	it('Should have default config values', function() {
-		var defaults = ['hasher', 'length', 'manifest', 'path', 'replace', 'template'];
+		var defaults = ['hasher', 'length', 'manifest', 'path', 'replace', 'save', 'template'];
 		var	config = hasher.get();
 
 		expect(config).to.have.all.keys(defaults);
@@ -221,6 +221,10 @@ describe('Test default config is valid', function() {
 
 	it('Should have a path', function() {
 		expect(hasher.get('path')).to.be.a('string');
+	})
+
+	it('Should have a boolean save value', function() {
+		expect(hasher.get('save')).to.be.a('boolean');
 	})
 
 	it('Should have a hashed filename template', function() {
