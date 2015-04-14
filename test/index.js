@@ -30,6 +30,7 @@ var testFiles	= [
 
 /**
  * Clean up  test environment
+ * 
  * @param {string} path The path to directory to remove
  */
 function removeTestDir(dirPath) {
@@ -55,6 +56,7 @@ function removeTestDir(dirPath) {
 
 /**
  * Add test files
+ * 
  * @param {array} files Test files to create
  */
 function addTestFiles(files) {
@@ -86,6 +88,7 @@ function addTestFiles(files) {
 
 /**
  * Remove test files
+ * 
  * @param  {array} files The files to remove
  */
 function removeTestFiles(files) {
