@@ -249,7 +249,7 @@ describe('Test default config is valid', function() {
 		
 		var hashInfo = hasher.hashFiles(testFiles[0]);
 
-		expect(hashInfo.oldFile).to.equal(hashInfo.newFile.replace('_' + hashInfo.hash, ''));
+		expect(hashInfo.original).to.equal(hashInfo.path.replace('_' + hashInfo.hash, ''));
 
 		removeTestDir(tmpDir);
 	})
@@ -278,8 +278,8 @@ describe('Test hashing functionality', function() {
 		var hashInfo = hasher.hashFiles(testFiles[0]);
 
 		expect(hashInfo.hashed).to.exist;
-		expect(hashInfo.newFile).to.be.a('string');
-		expect(hashInfo.oldFile).to.be.a('string');
+		expect(hashInfo.path).to.be.a('string');
+		expect(hashInfo.original).to.be.a('string');
 		expect(hashInfo.hash).to.be.a('string');
 		expect(hashInfo.type).to.be.a('string');
 	})
@@ -288,46 +288,46 @@ describe('Test hashing functionality', function() {
 		var	hashInfo = hasher.hashFiles(testFiles[0]);
 
 		expect(hashInfo.hashed).to.be.true;
-		expect(hashInfo.oldFile).to.equal(testFiles[0]);
-		expect(hashInfo.newFile).to.have.length.greaterThan(hashInfo.oldFile.length);
-		expect(fs.lstatSync(hashInfo.newFile).isFile()).to.be.ok;
+		expect(hashInfo.original).to.equal(testFiles[0]);
+		expect(hashInfo.path).to.have.length.greaterThan(hashInfo.original.length);
+		expect(fs.lstatSync(hashInfo.path).isFile()).to.be.ok;
 	})
 
 	it('Should hash single file and keep original file', function() {
 		var hashInfo = hasher.hashFiles(testFiles[0], {replace: false});
 
-		expect(fs.lstatSync(hashInfo.newFile).isFile()).to.be.ok;
-		expect(fs.lstatSync(hashInfo.oldFile).isFile()).to.be.ok;
+		expect(fs.lstatSync(hashInfo.path).isFile()).to.be.ok;
+		expect(fs.lstatSync(hashInfo.original).isFile()).to.be.ok;
 	})
 
 	it('Should hash single file and replace original file', function() {
 		var hashInfo = hasher.hashFiles(testFiles[0], {replace: true});
 
-		expect(fs.lstatSync(hashInfo.newFile).isFile()).to.be.ok;
-		expect(fs.lstatSync.bind(fs.lstatSync, hashInfo.oldFile)).to.throw(Error, "ENOENT, no such file or directory");
+		expect(fs.lstatSync(hashInfo.path).isFile()).to.be.ok;
+		expect(fs.lstatSync.bind(fs.lstatSync, hashInfo.original)).to.throw(Error, "ENOENT, no such file or directory");
 	})
 
 	it('Should hash single file twice, keep the original and remove the first hashed file', function() {
 		var hash1Info = hasher.hashFiles(testFiles[0], {replace: false});
 
-		expect(fs.lstatSync(hash1Info.newFile).isFile()).to.be.ok;
+		expect(fs.lstatSync(hash1Info.path).isFile()).to.be.ok;
 
 		// Update original file contents to second hash will be different
 		fs.appendFileSync(testFiles[0], 'appending more test content');
 
 		var hash2Info = hasher.hashFiles(testFiles[0], {replace: false});
 
-		expect(hash1Info.oldFile).to.equal(hash2Info.oldFile);
-		expect(fs.lstatSync(hash1Info.oldFile).isFile()).to.be.ok;
-		expect(fs.lstatSync(hash2Info.newFile).isFile()).to.be.ok;
-		expect(fs.lstatSync.bind(fs.lstatSync, hash1Info.newFile)).to.throw(Error, "ENOENT, no such file or directory");
+		expect(hash1Info.original).to.equal(hash2Info.original);
+		expect(fs.lstatSync(hash1Info.original).isFile()).to.be.ok;
+		expect(fs.lstatSync(hash2Info.path).isFile()).to.be.ok;
+		expect(fs.lstatSync.bind(fs.lstatSync, hash1Info.path)).to.throw(Error, "ENOENT, no such file or directory");
 	})
 
 	it('Should have same hash for single unchanged file which is hashed multiple times', function() {
 		var hash1Info = hasher.hashFiles(testFiles[0], {replace: false});
 		var hash2Info = hasher.hashFiles(testFiles[0], {replace: false});
 
-		expect(hash1Info.newFile).to.equal(hash2Info.newFile);
+		expect(hash1Info.path).to.equal(hash2Info.path);
 	})
 
 	it('Should return an array if multiple files are hashed', function() {
@@ -338,8 +338,8 @@ describe('Test hashing functionality', function() {
 		var hashInfo = hasher.hashFiles(testFiles);
 
 		testFiles.forEach(function(file, index) {
-			expect(hashInfo[index].oldFile).to.equal(file);
-			expect(fs.lstatSync(hashInfo[index].newFile).isFile()).to.be.ok;
+			expect(hashInfo[index].original).to.equal(file);
+			expect(fs.lstatSync(hashInfo[index].path).isFile()).to.be.ok;
 		});
 	})
 
@@ -352,7 +352,7 @@ describe('Test hashing functionality', function() {
 
 		hashInfo.forEach(function(fileInfo) {
 			expect(fileInfo.hashed).to.be.true;
-			expect(fs.lstatSync(fileInfo.newFile).isFile()).to.be.ok;
+			expect(fs.lstatSync(fileInfo.path).isFile()).to.be.ok;
 		});
 	})
 
@@ -367,7 +367,7 @@ describe('Test hashing functionality', function() {
 
 		hashInfo.forEach(function(fileInfo) {
 			expect(fileInfo.hashed).to.be.true;
-			expect(fs.lstatSync(fileInfo.newFile).isFile()).to.be.ok;
+			expect(fs.lstatSync(fileInfo.path).isFile()).to.be.ok;
 		});
 	})
 
@@ -397,7 +397,7 @@ describe('Test asset library and manifest', function() {
 		var info = hasher.getAsset(testFiles[0]);
 
 		expect(info).to.be.an('object');
-		expect(info.oldFile).to.equal(testFiles[0]);
+		expect(info.original).to.equal(testFiles[0]);
 	})
 
 	it('Should return null if asset library entery does not exist', function() {
@@ -410,13 +410,13 @@ describe('Test asset library and manifest', function() {
 		hasher.hashFiles(testFiles);
 
 		var data = hasher.getAsset(testFiles[0]);
-		var prefixed = 'testupdate_' + data.newFile;
+		var prefixed = 'testupdate_' + data.path;
 
-		hasher.updateAsset(testFiles[0], {newFile: prefixed});
+		hasher.updateAsset(testFiles[0], {path: prefixed});
 
 		var updatedData = hasher.getAsset(testFiles[0]);
 
-		expect(updatedData.newFile).to.equal(prefixed);
+		expect(updatedData.path).to.equal(prefixed);
 	})
 
 	it('Should return object for assets library', function() {

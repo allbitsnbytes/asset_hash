@@ -119,8 +119,8 @@ var AssetHasher = function() {
 		var patterns 	= [];
 		var result 		= {
 			hashed: false,
-			oldFile: path.relative(options.base, file),
-			newFile: '',
+			original: path.relative(options.base, file),
+			path: '',
 			hash: hash,
 			type: ext.replace('.', '')
 		};
@@ -128,7 +128,7 @@ var AssetHasher = function() {
 		// If file was hashed, set result object and rename/create hash file
 		if (hash !== '') {
 			result.hashed = true;
-			result.newFile = path.relative(options.base, path.join(filePath, _.template(options.template)({
+			result.path = path.relative(options.base, path.join(filePath, _.template(options.template)({
 				name: name,
 				hash: hash,
 				ext: ext.replace('.', '')
@@ -151,16 +151,18 @@ var AssetHasher = function() {
 
 			// Create new hashed file unless instructed to skip
 			if (options.save) {
-				fs.createReadStream(result.oldFile).pipe(fs.createWriteStream(result.newFile));
+				fs.createReadStream(result.original).pipe(fs.createWriteStream(result.path));
 			}
 
 			// Remove original file if necessary
 			if (options.replace) {
-				fs.unlinkSync(result.oldFile);
+				fs.unlinkSync(result.original);
 			}
 
 			// Add file to or update asset library
-			assets[result.oldFile] = result;
+			assets[result.original] = result;
+		} else {
+			result.path = result.original;
 		}
 
 		return result;
