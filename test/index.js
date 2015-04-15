@@ -155,7 +155,7 @@ describe('Test utility functions', function() {
 
 describe('Test methods exist', function() {
 
-	var methods = ['get', 'set', 'hashFiles', 'getAsset', 'getAssets', 'saveManifest', 'updateAsset'];
+	var methods = ['get', 'set', 'hashFiles', 'getAsset', 'getAssets', 'resetAssets', 'saveManifest', 'updateAsset'];
 
 	methods.forEach(function(method) {
 		it('Should have a ' + method + ' method', function() {
@@ -378,6 +378,13 @@ describe('Test asset library and manifest', function() {
 
 	afterEach(function() {
 		removeTestDir(tmpDir);
+	})
+
+	it('Should return an empty object when asset library is reset', function() {
+		var assets = hasher.resetAssets();
+
+		expect(assets).to.be.an('object');
+		expect(_.size(assets)).to.equal(0);
 	})
 
 	it('Should return an object for asset library', function() {

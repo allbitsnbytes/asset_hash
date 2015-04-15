@@ -263,6 +263,16 @@ var AssetHasher = function() {
 
 
 	/**
+	 * Reset asset library.
+	 *
+	 * @return {object} The asset library
+	 */
+	var resetAssets = function() {
+		return assets = {};
+	};
+
+
+	/**
 	 * Save assets library to manifest file
 	 *
 	 * @param {object} options Options to configure the manifest file generated
@@ -296,6 +306,7 @@ var AssetHasher = function() {
 		hashFiles: hashFiles,
 		getAsset: getAsset,
 		getAssets: getAssets,
+		resetAssets: resetAssets,
 		updateAsset: updateAsset,
 		saveManifest: saveManifest,
 		getHashers: getHashers
