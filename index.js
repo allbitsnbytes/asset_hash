@@ -58,6 +58,12 @@ var AssetHasher = function() {
 	config.manifest = 'assets.json';
 
 	/**
+	 * The base directory from which to save assets
+	 * @type {string}
+	 */
+	config.base = '.';
+
+	/**
 	 * Path where to save manifest file
 	 * @type {string}
 	 */
@@ -113,7 +119,7 @@ var AssetHasher = function() {
 		var patterns 	= [];
 		var result 		= {
 			hashed: false,
-			oldFile: file,
+			oldFile: path.relative(options.base, file),
 			newFile: '',
 			hash: hash,
 			type: ext.replace('.', '')
@@ -122,11 +128,11 @@ var AssetHasher = function() {
 		// If file was hashed, set result object and rename/create hash file
 		if (hash !== '') {
 			result.hashed = true;
-			result.newFile =  path.join(filePath, _.template(options.template)({
+			result.newFile = path.relative(options.base, path.join(filePath, _.template(options.template)({
 				name: name,
 				hash: hash,
 				ext: ext.replace('.', '')
-			}));
+			})));
 
 			// Pattern to match previously hashed files
 			patterns.push(path.join(filePath, _.template(options.template)({

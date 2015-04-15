@@ -175,7 +175,7 @@ describe('Test config functionality', function() {
 	})
 
 	it('Should have default config values', function() {
-		var defaults = ['hasher', 'length', 'manifest', 'path', 'replace', 'save', 'template'];
+		var defaults = ['base', 'hasher', 'length', 'manifest', 'path', 'replace', 'save', 'template'];
 		var	config = hasher.get();
 
 		expect(config).to.have.all.keys(defaults);
@@ -214,6 +214,10 @@ describe('Test default config is valid', function() {
 		expect(hashers).to.be.an('array').and.contains(myHasher);
 	})
 
+	it('Should have a base', function() {
+		expect(hasher.get('base')).to.be.a('string').and.not.be.empty;
+	})
+
 	it('Should have a valid length', function() {
 		expect(hasher.get('length')).to.be.a('number').and.be.at.least(10);
 	})
@@ -223,7 +227,7 @@ describe('Test default config is valid', function() {
 	})
 
 	it('Should have a path', function() {
-		expect(hasher.get('path')).to.be.a('string');
+		expect(hasher.get('path')).to.be.a('string').and.not.be.empty;
 	})
 
 	it('Should have a boolean save value', function() {
