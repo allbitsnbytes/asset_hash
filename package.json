@@ -1,13 +1,32 @@
 {
   "name": "asset_hash",
   "version": "0.1.4",
-  "description": "Small library to hash assets and generate asset manifest",
+  "description": "Small library to hash asset filenames and generate asset manifest",
+  "author": {
+    "name": "Maxwell Berkel",
+    "email": "maxwell@allbitsnbytes.com",
+    "url": "https://github.com/allbitsnbytes"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "license": [{
+    "type": "MIT",
+    "url": ""
+  }],
+  "engines": {
+    "node": ">= 0.10.25"
+  },
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --reporter spec"
   },
   "keywords": [
     "asset",
@@ -16,8 +35,6 @@
     "rev",
     "revving"
   ],
-  "author": "Maxwell Berkel <maxwell@allbitsnbytes.com> (http://allbitsnbytes.com/)",
-  "license": "MIT",
   "devDependencies": {
     "lodash": "~3.6.0",
     "chai": "~2.2.0",
