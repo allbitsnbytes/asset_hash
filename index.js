@@ -1,7 +1,7 @@
 /**
  * Small library to hash assets and generate asset manifest
  *
- * TODO: If manifest config is false or null, don't save manifest file
+ * TODO: Add support to merge existing manifest file and computed asset library
  */
 
 var _			= require('lodash');
@@ -194,159 +194,163 @@ var AssetHasher = function() {
 	};
 
 
-	/**
-	 * Update configuration options.
-	 *
-	 * @param {object} options Config options to add or update.
-	 */
-	var set = function(options) {
-		_.assign(config, options);
-	};
-
-
-	/**
-	 * Get config option for specified key.
-	 *
-	 * @param {*} key The key for find value for.  If not present and empty string will be returned.  If key is undefined/none provided then the whole config object will be returned.
-	 * @return {*} Config value for specified key
-	 */
-	var get = function(key) {
-		if (typeof key === 'undefined' || key === '') {
-			return config;
-		}
-
-		return config.hasOwnProperty(key) ? config[key] : '';
-	};
-
-
-	/**
-	 * Hash file(s) based on path(s) provided.  Specified options will override same in config
-	 *
-	 * @param {string|array} paths The path or array of paths to files to hash
-	 * @param {object} options Options to use for specified files
-	 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing.
-	 */
-	var hashFiles = function(paths, options) {
-		var curConfig = _.clone(config);
-		var results = [];
-
-		// Set config options to use for this hash session
-		_.assign(curConfig, options);
-
-		if (!_.isArray(paths)) {
-			paths = [paths];
-		}
-
-		// Process files for each path
-		paths.forEach(function(filePaths) {
-			if (_.isString(filePaths)) {
-				filePaths = glob.sync(filePaths);
-
-				filePaths.forEach(function(filePath) {
-					fileInfo = fs.lstatSync(filePath);
-
-					if (fileInfo.isDirectory()) {
-						dirFiles = fs.readdirSync(filePath);
-
-						dirFiles.forEach(function(dirFile) {
-							var curPath = path.join(filePath, dirFile);
-							var curFileInfo = fs.lstatSync(curPath);
-
-							if (curFileInfo.isDirectory()) {
-								results = results.concat(hashFiles(curPath, options));
-							} else if (curFileInfo.isFile()) {
-								results.push(hashFile(curPath, curConfig));
-							}
-						});
-					} else if (fileInfo.isFile()) {
-						results.push(hashFile(filePath, curConfig));
-					}
-				});
-			} else {
-				results.push(hashFile(filePaths, curConfig));
-			}
-		});
-
-		return results.length > 1 ? results : results.shift();
-	};
-
-
-	var getAsset = function(file) {
-		return _.isObject(assets[file]) ? assets[file] : null;
-	};
-
-
-	/**
-	 * Get asset library.  This is an object with information from all files that have been hashed
-	 *
-	 * @return {object} The asset library
-	 */
-	var getAssets = function() {
-		return assets;
-	};
-
-
-	/**
-	 * Update asset in asset library.
-	 *
-	 * @param {string} file The path to the file to update
-	 * @param {object} data The options keys and values to update.  If key is not present in for file, key and value will be added
-	 */
-	var updateAsset = function(file, data) {
-		if (_.isObject(assets[file]) && _.isObject(data)) {
-			_.assign(assets[file], data);
-		}
-	};
-
-
-	/**
-	 * Reset asset library.
-	 *
-	 * @return {object} The asset library
-	 */
-	var resetAssets = function() {
-		return (assets = {});
-	};
-
-
-	/**
-	 * Save assets library to manifest file
-	 *
-	 * @param {object} options Options to configure the manifest file generated
-	 */
-	var saveManifest = function(options) {
-		var curConfig = _.clone(config);
-		
-		_.assign(curConfig, options);
-
-		fs.writeFileSync(path.join(curConfig.path, curConfig.manifest), JSON.stringify(assets));
-	};
-
-
-	/**
-	 * Get list of valid hashers
-	 *
-	 * @return {array} List of available hashers
-	 */
-	var getHashers = function() {
-		return crypto.getHashes();
-	};
-
-
-	/**
-	 * Update file 
-	 */
-
 	return {
-		get: get,
-		set: set,
-		hashFiles: hashFiles,
-		getAsset: getAsset,
-		getAssets: getAssets,
-		resetAssets: resetAssets,
-		updateAsset: updateAsset,
-		saveManifest: saveManifest,
-		getHashers: getHashers
+		
+		/**
+		 * Update configuration options.
+		 *
+		 * @param {object} options Config options to add or update.
+		 */
+		set: function(options) {
+			_.assign(config, options);
+		},
+
+
+		/**
+		 * Get config option for specified key.
+		 *
+		 * @param {*} key The key for find value for.  If not present and empty string will be returned.  If key is undefined/none provided then the whole config object will be returned.
+		 * @return {*} Config value for specified key
+		 */
+		get: function(key) {
+			if (typeof key === 'undefined' || key === '') {
+				return config;
+			}
+
+			return config.hasOwnProperty(key) ? config[key] : '';
+		},
+
+
+		/**
+		 * Hash file(s) based on path(s) provided.  Specified options will override same in config
+		 *
+		 * @param {string|array} paths The path or array of paths to files to hash
+		 * @param {object} options Options to use for specified files
+		 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing.
+		 */
+		hashFiles: function(paths, options) {
+			var curConfig = _.clone(config);
+			var results = [];
+
+			// Set config options to use for this hash session
+			_.assign(curConfig, options);
+
+			if (!_.isArray(paths)) {
+				paths = [paths];
+			}
+
+			// Process files for each path
+			paths.forEach(function(filePaths) {
+				if (_.isString(filePaths)) {
+					filePaths = glob.sync(filePaths);
+
+					filePaths.forEach(function(filePath) {
+						fileInfo = fs.lstatSync(filePath);
+
+						if (fileInfo.isDirectory()) {
+							dirFiles = fs.readdirSync(filePath);
+
+							dirFiles.forEach(function(dirFile) {
+								var curPath = path.join(filePath, dirFile);
+								var curFileInfo = fs.lstatSync(curPath);
+
+								if (curFileInfo.isDirectory()) {
+									results = results.concat(hashFiles(curPath, options));
+								} else if (curFileInfo.isFile()) {
+									results.push(hashFile(curPath, curConfig));
+								}
+							});
+						} else if (fileInfo.isFile()) {
+							results.push(hashFile(filePath, curConfig));
+						}
+					});
+				} else {
+					results.push(hashFile(filePaths, curConfig));
+				}
+			});
+
+			return results.length > 1 ? results : results.shift();
+		},
+
+
+		/**
+		 * Get asset library information for a specified original file
+		 * 
+		 * @param  {string} file The path to the original file.  This is based off the base directory specified in the config.
+		 * @return {object}
+		 */
+		getAsset: function(file) {
+			return _.isObject(assets[file]) ? assets[file] : null;
+		},
+
+
+		/**
+		 * Get asset library.  This is an object with information from all files that have been hashed
+		 *
+		 * @return {object} The asset library
+		 */
+		getAssets: function() {
+			return assets;
+		},
+
+
+		/**
+		 * Get hashed file for specified original file
+		 *
+		 * @param {string} file The original file to find hashed file for
+		 * @return {string} 
+		 */
+		getAssetFile: function(file) {
+			return _.isObject(assets[file]) ? assets[file].path : null;
+		},
+
+
+		/**
+		 * Update asset in asset library.
+		 *
+		 * @param {string} file The path to the file to update
+		 * @param {object} data The options keys and values to update.  If key is not present in for file, key and value will be added
+		 */
+		updateAsset: function(file, data) {
+			if (_.isObject(assets[file]) && _.isObject(data)) {
+				_.assign(assets[file], data);
+			}
+		},
+
+
+		/**
+		 * Reset asset library.
+		 *
+		 * @return {object} The asset library
+		 */
+		resetAssets: function() {
+			return (assets = {});
+		},
+
+
+		/**
+		 * Save assets library to manifest file
+		 *
+		 * @param {object} options Options to configure the manifest file generated
+		 */
+		saveManifest: function(options) {
+			var curConfig = _.clone(config);
+			
+			_.assign(curConfig, options);
+
+			if (curConfig.manifest !== false && curConfig.manifest !== null)
+				fs.writeFileSync(path.join(curConfig.path, curConfig.manifest), JSON.stringify(assets));
+		},
+
+
+		/**
+		 * Get list of valid hashers
+		 *
+		 * @return {array} List of available hashers
+		 */
+		getHashers: function() {
+			return crypto.getHashes();
+		}
 	};
 
 };

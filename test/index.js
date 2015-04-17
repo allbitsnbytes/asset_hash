@@ -157,7 +157,7 @@ describe('Test utility functions', function() {
 
 describe('Test methods exist', function() {
 
-	var methods = ['get', 'set', 'hashFiles', 'getAsset', 'getAssets', 'resetAssets', 'saveManifest', 'updateAsset'];
+	var methods = ['get', 'set', 'hashFiles', 'getAsset', 'getAssets', 'getAssetFile', 'resetAssets', 'saveManifest', 'updateAsset'];
 
 	methods.forEach(function(method) {
 		it('Should have a ' + method + ' method', function() {
@@ -466,6 +466,15 @@ describe('Test asset library and manifest', function() {
 		removeTestFiles(manifestFile);
 	})
 
+	it('Should get hashed file for original file', function() {
+		hasher.hashFiles(testFiles[1]);
+
+		var file = hasher.getAssetFile(testFiles[1]);
+
+		expect(file).to.be.a('string').with.length.greaterThan(0);
+		expect(file).to.not.equal(testFiles[1]);
+	})
+
 	it('Should save asset manifest file with custom name provided in saveManifest options', function() {
 		var oldManifestFile = hasher.get('manifest');
 		var manifestFile = 'test_manifest.json';
@@ -476,6 +485,17 @@ describe('Test asset library and manifest', function() {
 		expect(fs.lstatSync(manifestFile).isFile()).to.be.ok;
 
 		removeTestFiles(manifestFile);
+	})
+
+	it('Should not save a manifest file if manifest config is false or null', function() {
+		var manifestFile = path.join(hasher.get('path'), hasher.get('manifest'));
+
+		hasher.set({manifest: false});
+		hasher.hashFiles(testFiles[0]);
+		hasher.saveManifest();
+
+		expect(hasher.getAssets()).to.be.an('object');
+		expect(fs.lstatSync.bind(fs.lstatSync, manifestFile)).to.throw(Error, "ENOENT, no such file or directory");
 	})
 
 });
