@@ -14,10 +14,12 @@
   "bugs": {
     "url": ""
   },
-  "license": [{
-    "type": "MIT",
-    "url": ""
-  }],
+  "license": [
+    {
+      "type": "MIT",
+      "url": ""
+    }
+  ],
   "engines": {
     "node": ">= 0.10.25"
   },
@@ -38,6 +40,7 @@
   "devDependencies": {
     "lodash": "~3.6.0",
     "chai": "~2.2.0",
-    "glob": "~5.0.3"
+    "glob": "~5.0.3",
+    "mocha-jshint": "~2.1.1"
   }
 }
