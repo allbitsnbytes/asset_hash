@@ -123,13 +123,16 @@ These are the configuration options that can be set for the asset hasher.  Use .
 ### base
 
 The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  
-_Type: `String`<br>
-Default: `.`_
+_Type: String
+Default: ._
 
 
 ### hasher
 
-The hash algorithm to used when generating content hash.  _Default is 'sha1'_
+The hash algorithm to used when generating content hash.
+
+_Type: String
+Default: 'sha1'
 
 
 ### length
