@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/allbitsnbytes/asset_hash"
   },
   "bugs": {
-    "url": ""
+    "url": "https://github.com/allbitsnbytes/asset_hash/issues"
   },
   "license": [
     {
       "type": "MIT",
-      "url": ""
+      "url": "https://github.com/allbitsnbytes/asset_hash/blob/LICENSE-MIT"
     }
   ],
   "engines": {
