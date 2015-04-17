@@ -1,5 +1,7 @@
 /**
  * Small library to hash assets and generate asset manifest
+ *
+ * TODO: Add support for file object as parameter for hashFiles
  */
 
 var _			= require('lodash');
@@ -20,8 +22,11 @@ var AssetHasher = function() {
 	 * @example
 	 * {
 	 * 		'logo.png': {
-	 * 			file: 'logo-b91nbave2.png',
-	 * 			hashed: true
+	 * 			path: 'logo-b91nbave2.png',
+	 * 			original: logo.png,
+	 * 			hashed: true,
+	 * 			hash: 'b91nbave2',
+	 * 			type: png
 	 * 		}
 	 * }
 	 */
@@ -98,7 +103,7 @@ var AssetHasher = function() {
 		}
 
 		return '';
-	}
+	};
 
 
 	/**
@@ -166,7 +171,7 @@ var AssetHasher = function() {
 		}
 
 		return result;
-	}
+	};
 
 
 	/**
@@ -235,7 +240,7 @@ var AssetHasher = function() {
 				} else if (fileInfo.isFile()) {
 					results.push(hashFile(filePath, curConfig));
 				}
-			})
+			});
 		});
 
 		return results.length > 1 ? results : results.shift();
@@ -276,7 +281,7 @@ var AssetHasher = function() {
 	 * @return {object} The asset library
 	 */
 	var resetAssets = function() {
-		return assets = {};
+		return (assets = {});
 	};
 
 
@@ -301,7 +306,7 @@ var AssetHasher = function() {
 	 */
 	var getHashers = function() {
 		return crypto.getHashes();
-	}
+	};
 
 
 	/**
@@ -320,7 +325,7 @@ var AssetHasher = function() {
 		getHashers: getHashers
 	};
 
-}
+};
 
 
 /**
