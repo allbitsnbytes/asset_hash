@@ -122,7 +122,9 @@ These are the configuration options that can be set for the asset hasher.  Use .
 
 ### base
 
-The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  _Default is '.'_
+The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  
+_Type: `String`<br>
+Default: `.`_
 
 
 ### hasher
