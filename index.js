@@ -197,9 +197,9 @@ var AssetHasher = function() {
 	return {
 		
 		/**
-		 * Update configuration options.
+		 * Update configuration options
 		 *
-		 * @param {object} options Config options to add or update.
+		 * @param {object} options Config options to add or update
 		 */
 		set: function(options) {
 			_.assign(config, options);
@@ -207,9 +207,9 @@ var AssetHasher = function() {
 
 
 		/**
-		 * Get config option for specified key.
+		 * Get config option for specified key
 		 *
-		 * @param {*} key The key for find value for.  If not present and empty string will be returned.  If key is undefined/none provided then the whole config object will be returned.
+		 * @param {*} key The key for find value for.  If not present and empty string will be returned.  If key is undefined/none provided then the whole config object will be returned
 		 * @return {*} Config value for specified key
 		 */
 		get: function(key) {
@@ -226,7 +226,7 @@ var AssetHasher = function() {
 		 *
 		 * @param {string|array} paths The path or array of paths to files to hash
 		 * @param {object} options Options to use for specified files
-		 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing.
+		 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing
 		 */
 		hashFiles: function(paths, options) {
 			var curConfig = _.clone(config);
@@ -276,7 +276,7 @@ var AssetHasher = function() {
 		/**
 		 * Get asset library information for a specified original file
 		 * 
-		 * @param  {string} file The path to the original file.  This is based off the base directory specified in the config.
+		 * @param  {string} file The path to the original file.  This is based off the base directory specified in the config
 		 * @return {object}
 		 */
 		getAsset: function(file) {
@@ -295,18 +295,18 @@ var AssetHasher = function() {
 
 
 		/**
-		 * Get hashed file for specified original file
+		 * Get hashed file for specified original file.  Will return path to provided file if file is not in the asset library
 		 *
 		 * @param {string} file The original file to find hashed file for
 		 * @return {string} 
 		 */
 		getAssetFile: function(file) {
-			return _.isObject(assets[file]) ? assets[file].path : null;
+			return _.isObject(assets[file]) ? assets[file].path : file;
 		},
 
 
 		/**
-		 * Update asset in asset library.
+		 * Update asset in asset library
 		 *
 		 * @param {string} file The path to the file to update
 		 * @param {object} data The options keys and values to update.  If key is not present in for file, key and value will be added

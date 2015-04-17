@@ -62,6 +62,26 @@ var asset = hash.getAsset('assets/css/style.css');
 ```
 
 
+### .getAssets()
+
+Get asset library object.  This is a mirror of the asset manifest file.
+
+```
+var hash = require('asset_hash');
+var assets = hash.getAssets();
+```
+
+
+### .getAssetFile()
+
+Get path to an asset.  If asset was hashed, path to hashed file will be returned.  Otherwise, path to original file will be returned.
+
+```
+var hash = require('asset_hash');
+var file = hash.getAssetFile(original_file);
+```
+
+
 ### .updateAsset(path, data)
 
 Update values in asset library for a specified file.
@@ -70,16 +90,6 @@ Update values in asset library for a specified file.
 var hash = require('asset_hash');
 
 hash.updateAsset('asset/css/style.css', {type: 'css'});
-```
-
-
-### .getAssets()
-
-Get asset library object.  This is a mirror of the asset manifest file.
-
-```
-var hash = require('asset_hash');
-var assets = hash.getAssets();
 ```
 
 

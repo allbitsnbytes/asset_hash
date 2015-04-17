@@ -1,6 +1,6 @@
 {
   "name": "asset_hash",
-  "version": "0.1.50",
+  "version": "0.1.51",
   "description": "Small library to hash asset filenames and generate asset manifest",
   "author": {
     "name": "Maxwell Berkel",
