@@ -9,7 +9,7 @@ var fs			= require('fs');
 var glob		= require('glob');
 var	hasher		= require('../');
 var path		= require('path');
-var vinylFile	= require('vinyl-file');
+var vinyl		= require('vinyl-file');
 
 
 // Test variables
@@ -25,6 +25,7 @@ var testFiles	= [
 	path.join(tmpDir, 'js/main.js'),
 	path.join(tmpDir, 'js/shoestring.min.js')
 ];
+var jsDir		= path.join(tmpDir, 'js');
 
 
 // Utility Functions
@@ -365,6 +366,33 @@ describe('Test hashing functionality', function() {
 		var hashInfo = hasher.hashFiles([test1Glob, test2Glob]);
 
 		expect(files1.concat(files2).length).to.equal(hashInfo.length);
+
+		hashInfo.forEach(function(fileInfo) {
+			expect(fileInfo.hashed).to.be.true;
+			expect(fs.lstatSync(fileInfo.path).isFile()).to.be.ok;
+		});
+	})
+
+	it('Should hash files in a directory', function() {
+		var files = glob.sync(path.join(jsDir, '**/*.js'));
+		var hashInfo = hasher.hashFiles(jsDir);
+
+		expect(hashInfo).to.be.a('array').and.have.length(files.length);
+	})
+
+	it('Should hash vinyl file', function() {
+		var file = vinyl.readSync(testFiles[0]);
+		var hashInfo = hasher.hashFiles(file);
+
+		expect(hashInfo.hashed).to.be.true;
+		expect(fs.lstatSync(hashInfo.path).isFile()).to.be.ok;
+	})
+
+	it('Should hash array of vinyl files', function() {
+		var files = [vinyl.readSync(testFiles[0]), vinyl.readSync(testFiles[1])];
+		var hashInfo = hasher.hashFiles(files);
+
+		expect(hashInfo.length).to.equal(files.length);
 
 		hashInfo.forEach(function(fileInfo) {
 			expect(fileInfo.hashed).to.be.true;

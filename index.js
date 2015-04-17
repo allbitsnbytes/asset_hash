@@ -1,7 +1,7 @@
 /**
  * Small library to hash assets and generate asset manifest
  *
- * TODO: Add support for file object as parameter for hashFiles
+ * TODO: If manifest config is false or null, don't save manifest file
  */
 
 var _			= require('lodash');
@@ -89,6 +89,18 @@ var AssetHasher = function() {
 
 
 	/**
+	 * Check if file is a vinyl file or file object.  To be a file object, the following properties are required: path, contents
+	 *
+	 * @private
+	 * @param {vinyl|object} file The object to check to see if it's a valid file
+	 * @return {boolean} Whether file is a valid file object
+	 */
+	var isFile = function(file) {
+		return  !_.isString(file) && !_.isUndefined(file.path) && !_.isUndefined(file.contents) ? true : false;
+	};
+
+
+	/**
 	 * Generate hash based on contents
 	 *
 	 * @private
@@ -116,16 +128,26 @@ var AssetHasher = function() {
 	 * @return {object} Hash results
 	 */
 	var hashFile = function(file, options) {
-		var ext 		= path.extname(file);
-		var name		= path.basename(file, ext);
-		var filePath	= path.dirname(file);
-		var contents 	= fs.readFileSync(file);
-		var hash 		= generateHash(contents, options.hasher, options.length);
+		var contents = '';
+		var filePath = '';
 		var patterns 	= [];
+
+		if (isFile(file)) {
+			contents = Buffer.isBuffer(file.contents) ? file.contents.toString() : file.contents;
+			filePath = path.relative(options.base, file.path);
+		} else {
+			contents = fs.readFileSync(file);
+			filePath = path.relative(options.base, file);
+		}
+
+		var ext 		= path.extname(filePath);
+		var name		= path.basename(filePath, ext);
+		var dirPath		= path.dirname(filePath);
+		var hash 		= generateHash(contents, options.hasher, options.length);
 		var result 		= {
 			hashed: false,
-			original: path.relative(options.base, file),
-			path: '',
+			original: filePath,
+			path: filePath,
 			hash: hash,
 			type: ext.replace('.', '')
 		};
@@ -133,14 +155,14 @@ var AssetHasher = function() {
 		// If file was hashed, set result object and rename/create hash file
 		if (hash !== '') {
 			result.hashed = true;
-			result.path = path.relative(options.base, path.join(filePath, _.template(options.template)({
+			result.path = path.relative(options.base, path.join(dirPath, _.template(options.template)({
 				name: name,
 				hash: hash,
 				ext: ext.replace('.', '')
 			})));
 
 			// Pattern to match previously hashed files
-			patterns.push(path.join(filePath, _.template(options.template)({
+			patterns.push(path.join(dirPath, _.template(options.template)({
 				name: name,
 				hash: '=HASHREGEX=',
 				ext: ext.replace('.', '')
@@ -150,8 +172,8 @@ var AssetHasher = function() {
 			hashedOldFiles = glob.sync(patterns.join('|'));
 
 			// Delete old hash file(s)
-			hashedOldFiles.forEach(function(file) {
-				fs.unlinkSync(file);
+			hashedOldFiles.forEach(function(filePath) {
+				fs.unlinkSync(filePath);
 			});
 
 			// Create new hashed file unless instructed to skip
@@ -166,9 +188,7 @@ var AssetHasher = function() {
 
 			// Add file to or update asset library
 			assets[result.original] = result;
-		} else {
-			result.path = result.original;
-		}
+		} 
 
 		return result;
 	};
@@ -219,28 +239,32 @@ var AssetHasher = function() {
 
 		// Process files for each path
 		paths.forEach(function(filePaths) {
-			filePaths = glob.sync(filePaths);
+			if (_.isString(filePaths)) {
+				filePaths = glob.sync(filePaths);
 
-			filePaths.forEach(function(filePath) {
-				fileInfo = fs.lstatSync(filePath);
+				filePaths.forEach(function(filePath) {
+					fileInfo = fs.lstatSync(filePath);
 
-				if (fileInfo.isDirectory()) {
-					dirFiles = fs.readdirSync(filePath);
+					if (fileInfo.isDirectory()) {
+						dirFiles = fs.readdirSync(filePath);
 
-					dirFiles.forEach(function(dirFile) {
-						var curPath = path.join(filePath, dirFile);
-						var curFileInfo = fs.lstatSync(curPath);
+						dirFiles.forEach(function(dirFile) {
+							var curPath = path.join(filePath, dirFile);
+							var curFileInfo = fs.lstatSync(curPath);
 
-						if (curFileInfo.isDirectory()) {
-							hashFiles(curPath, options);
-						} else if (curFileInfo.isFile()) {
-							results.push(hashFile(curPath, curConfig));
-						}
-					});
-				} else if (fileInfo.isFile()) {
-					results.push(hashFile(filePath, curConfig));
-				}
-			});
+							if (curFileInfo.isDirectory()) {
+								results = results.concat(hashFiles(curPath, options));
+							} else if (curFileInfo.isFile()) {
+								results.push(hashFile(curPath, curConfig));
+							}
+						});
+					} else if (fileInfo.isFile()) {
+						results.push(hashFile(filePath, curConfig));
+					}
+				});
+			} else {
+				results.push(hashFile(filePaths, curConfig));
+			}
 		});
 
 		return results.length > 1 ? results : results.shift();
