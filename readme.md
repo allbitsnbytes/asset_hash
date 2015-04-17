@@ -124,7 +124,7 @@ These are the configuration options that can be set for the asset hasher.  Use .
 
 The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  
 
-Type: `String`
+Type: `String` <br/>
 Default: `[ . ]`
 
 
@@ -132,7 +132,7 @@ Default: `[ . ]`
 
 The hash algorithm to used when generating content hash.
 
-Type: `String`
+Type: `String` <br/>
 Default: `[ sha1 ]`
 
 
@@ -140,7 +140,7 @@ Default: `[ sha1 ]`
 
 Length of the generated hash.  This is the maximum length the hash can be.  
 
-Type: `Integer`
+Type: `Integer` <br/>
 Default: `[ 10 ]`
 
 
@@ -148,7 +148,7 @@ Default: `[ 10 ]`
 
 The name to use for the manifest file.  If this value is empty string or false manifest file won't be saved.  
 
-Type: `String`
+Type: `String` <br/>
 Default: `[ assets.json ]`
 
 
@@ -156,7 +156,7 @@ Default: `[ assets.json ]`
 
 The path where to save the manifest file.  
 
-Type: `String`
+Type: `String` <br/>
 Default: `[ . ]`
 
 
@@ -164,7 +164,7 @@ Default: `[ . ]`
 
 Set to true to replace the original file when hashed file is generated.  If set to false original file will be kept.  
 
-Type: `Boolean`
+Type: `Boolean` <br/>
 Default: `[ false ]`
 
 
@@ -172,7 +172,7 @@ Default: `[ false ]`
 
 When a file is hashed, the hashed version of the file is automatically written to the file system.  For stream build systems like gulp this behavior is not desired.  In that case set this to false.  
 
-Type: `Boolean`
+Type: `Boolean` <br/>
 Default: `[ true ]`
 
 
@@ -180,7 +180,7 @@ Default: `[ true ]`
 
 The template to use for the hashed file format.  
 
-Type: `String`
+Type: `String` <br/>
 Default: `[ <%= name %>-<%= hash %>.<%= ext %> ]`
 
 ```
