@@ -124,64 +124,64 @@ These are the configuration options that can be set for the asset hasher.  Use .
 
 The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  
 
-Type: String
-Default: '.'
+Type: `String`
+Default: `[ . ]`
 
 
 ### hasher
 
 The hash algorithm to used when generating content hash.
 
-Type: String
-Default: 'sha1'
+Type: `String`
+Default: `[ sha1 ]`
 
 
 ### length
 
 Length of the generated hash.  This is the maximum length the hash can be.  
 
-Type: Integer
-Default: 10
+Type: `Integer`
+Default: `[ 10 ]`
 
 
 ### manifest
 
 The name to use for the manifest file.  If this value is empty string or false manifest file won't be saved.  
 
-Type: String
-Default: 'assets.json'
+Type: `String`
+Default: `[ assets.json ]`
 
 
 ### path
 
 The path where to save the manifest file.  
 
-Type: String
-Default: '.'
+Type: `String`
+Default: `[ . ]`
 
 
 ### replace
 
 Set to true to replace the original file when hashed file is generated.  If set to false original file will be kept.  
 
-Type: Boolean
-Default: false
+Type: `Boolean`
+Default: `[ false ]`
 
 
 ### save
 
 When a file is hashed, the hashed version of the file is automatically written to the file system.  For stream build systems like gulp this behavior is not desired.  In that case set this to false.  
 
-Type: Boolean
-Default: true
+Type: `Boolean`
+Default: `[ true ]`
 
 
 ### template
 
 The template to use for the hashed file format.  
 
-Type: String
-Default: '<%= name %>-<%= hash %>.<%= ext %>'
+Type: `String`
+Default: `[ <%= name %>-<%= hash %>.<%= ext %> ]`
 
 ```
 var hash = require('asset_hash');
