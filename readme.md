@@ -124,46 +124,64 @@ These are the configuration options that can be set for the asset hasher.  Use .
 
 The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  
 
-_Type: String_
-_Default: ._
+_Type: String<br/>
+Default: '.'_
 
 
 ### hasher
 
 The hash algorithm to used when generating content hash.
 
-_Type: String_
-_Default: 'sha1'_
+_Type: String<br/>
+Default: 'sha1'_
 
 
 ### length
 
-Length of the generated hash.  This is the maximum length the hash can be.  _Default is 10_
+Length of the generated hash.  This is the maximum length the hash can be.  
+
+_Type: Integer<br/>
+Default: 10_
 
 
 ### manifest
 
-The name to use for the manifest file.  If this value is empty string or false manifest file won't be saved.  _Default is 'assets.json'_
+The name to use for the manifest file.  If this value is empty string or false manifest file won't be saved.  
+
+_Type: String<br/>
+Default: 'assets.json'_
 
 
 ### path
 
-The path where to save the manifest file.  _Default is '.'_
+The path where to save the manifest file.  
+
+_Type: String<br/>
+Default: '.'_
 
 
 ### replace
 
-Set to true to replace the original file when hashed file is generated.  If set to false original file will be kept.  _Default is false_
+Set to true to replace the original file when hashed file is generated.  If set to false original file will be kept.  
+
+_Type: Boolean<br/>
+Default: false_
 
 
 ### save
 
-When a file is hashed, the hashed version of the file is automatically written to the file system.  For stream build systems like gulp this behavior is not desired.  In that case set this to false.  _Default is true_
+When a file is hashed, the hashed version of the file is automatically written to the file system.  For stream build systems like gulp this behavior is not desired.  In that case set this to false.  
+
+_Type: Boolean<br/>
+Default: true_
 
 
 ### template
 
-The template to use for the hashed file format.  _Defualt is <%= name %>-<%= hash %>.<%= ext %>_
+The template to use for the hashed file format.  
+
+_Type: String<br/>
+Default: '<%= name %>-<%= hash %>.<%= ext %>'_
 
 ```
 var hash = require('asset_hash');
