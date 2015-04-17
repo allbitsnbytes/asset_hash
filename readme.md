@@ -3,11 +3,13 @@
 Small library to hash filenames for static assets.  The hash is computed from the file contents so the hash only changes when the file actually changes.  A manifest file is generated which maps the original file path to the hashed file path. (example:  style.css => style-g7ba80c.css)
 
 
+
 ## Install
 
 ```
 npm install --save asset_hash
 ```
+
 
 
 ## Methods
@@ -115,6 +117,7 @@ var hashers = hash.getHashers();
 ```
 
 
+
 ## Options
 
 These are the configuration options that can be set for the asset hasher.  Use .set() and .get() methods to change and retrieve these options.
@@ -124,64 +127,64 @@ These are the configuration options that can be set for the asset hasher.  Use .
 
 The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  
 
-Type: `String` <br/>
-Default: `[ . ]`
+Type: String  
+Default: ` . `
 
 
 ### hasher
 
 The hash algorithm to used when generating content hash.
 
-Type: `String` <br/>
-Default: `[ sha1 ]`
+Type: String  
+Default: ` sha1 `
 
 
 ### length
 
 Length of the generated hash.  This is the maximum length the hash can be.  
 
-Type: `Integer` <br/>
-Default: `[ 10 ]`
+Type: Integer  
+Default: ` 10 `
 
 
 ### manifest
 
 The name to use for the manifest file.  If this value is empty string or false manifest file won't be saved.  
 
-Type: `String` <br/>
-Default: `[ assets.json ]`
+Type: String  
+Default: ` assets.json `
 
 
 ### path
 
 The path where to save the manifest file.  
 
-Type: `String` <br/>
-Default: `[ . ]`
+Type: String  
+Default: ` . `
 
 
 ### replace
 
 Set to true to replace the original file when hashed file is generated.  If set to false original file will be kept.  
 
-Type: `Boolean` <br/>
-Default: `[ false ]`
+Type: Boolean  
+Default: ` false `
 
 
 ### save
 
 When a file is hashed, the hashed version of the file is automatically written to the file system.  For stream build systems like gulp this behavior is not desired.  In that case set this to false.  
 
-Type: `Boolean` <br/>
-Default: `[ true ]`
+Type: Boolean  
+Default: ` true `
 
 
 ### template
 
 The template to use for the hashed file format.  
 
-Type: `String` <br/>
-Default: `[ <%= name %>-<%= hash %>.<%= ext %> ]`
+Type: String  
+Default: ` <%= name %>-<%= hash %>.<%= ext %> `
 
 ```
 var hash = require('asset_hash');
