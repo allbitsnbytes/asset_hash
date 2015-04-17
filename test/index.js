@@ -9,6 +9,7 @@ var fs			= require('fs');
 var glob		= require('glob');
 var	hasher		= require('../');
 var path		= require('path');
+var vinylFile	= require('vinyl-file');
 
 
 // Test variables
@@ -265,7 +266,7 @@ describe('Test hashing functionality', function() {
 	afterEach(function() {
 		removeTestDir(tmpDir);
 	})
-
+	
 	it('Should get a list of hashers', function() {
 		expect(hasher.getHashers()).to.be.a('array').and.have.length.greaterThan(0);
 	})
