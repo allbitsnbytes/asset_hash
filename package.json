@@ -17,7 +17,7 @@
   "license": [
     {
       "type": "MIT",
-      "url": "https://github.com/allbitsnbytes/asset_hash/blob/LICENSE-MIT"
+      "url": "https://github.com/allbitsnbytes/asset_hash/blob/LICENSE.md"
     }
   ],
   "engines": {
@@ -38,10 +38,12 @@
     "revving"
   ],
   "devDependencies": {
-    "lodash": "~3.6.0",
     "chai": "~2.2.0",
-    "glob": "~5.0.3",
-    "mocha-jshint": "~2.1.1",
-    "vinyl-file": "~1.1.1"
+    "mocha-jshint": "~2.1.1"
+  },
+  "dependencies": {
+    "glob": "^5.0.5",
+    "lodash": "^3.7.0",
+    "vinyl-file": "^1.1.1"
   }
 }
