@@ -1,6 +1,6 @@
-License (MIT)
+cense (MIT)
 
-Copyright (c) Maxwell Berkel <maxwell@allbitsnbytes.com>
+Copyright (c) 2015 Maxwell Berkel <maxwell@allbitsnbytes.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -6,10 +6,7 @@ Small library to hash filenames for static assets.  The hash is computed from th
 
 ## Install
 
-```
-npm install --save asset_hash
-```
-
+[![NPM](https://nodei.co/npm/asset_hash.png?mini=true)](https://nodei.co/npm/asset_hash/)
 
 
 ## Methods
