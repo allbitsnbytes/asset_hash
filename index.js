@@ -166,7 +166,7 @@ var AssetHasher = function() {
 				name: name,
 				hash: '=HASHREGEX=',
 				ext: ext.replace('.', '')
-			})).replace('=HASHREGEX=', '[0-9a-zA-Z_-]*'));
+			})).replace('=HASHREGEX=', '[0-9a-zA-Z]+'));
 
 			// Find any previously hashed file versions
 			hashedOldFiles = glob.sync(patterns.join('|'));
