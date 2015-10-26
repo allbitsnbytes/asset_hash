@@ -32,7 +32,7 @@ var jsDir		= path.join(tmpDir, 'js');
 
 /**
  * Clean up  test environment
- * 
+ *
  * @param {string} path The path to directory to remove
  */
 function removeTestDir(dirPath) {
@@ -44,7 +44,7 @@ function removeTestDir(dirPath) {
 		files.forEach(function(file, index) {
 			var curPath = path.join(dirPath, file);
 
-			if(fs.lstatSync(curPath).isDirectory()) { 
+			if(fs.lstatSync(curPath).isDirectory()) {
 				removeTestDir(curPath);
 			} else {
 				fs.unlinkSync(curPath);
@@ -58,7 +58,7 @@ function removeTestDir(dirPath) {
 
 /**
  * Add test files
- * 
+ *
  * @param {array} files Test files to create
  */
 function addTestFiles(files) {
@@ -77,11 +77,11 @@ function addTestFiles(files) {
 
 			try {
 				fs.lstatSync(curDir);
-			} 
+			}
 			catch(e) {
 				fs.mkdirSync(curDir);
 			}
-		}	
+		}
 
 		fs.writeFileSync(file, 'test file '+index);
 	});
@@ -90,7 +90,7 @@ function addTestFiles(files) {
 
 /**
  * Remove test files
- * 
+ *
  * @param  {array} files The files to remove
  */
 function removeTestFiles(files) {
@@ -146,7 +146,7 @@ describe('Test utility functions', function() {
 	it('Should remove "' + tmpDir + '" directory', function() {
 		try {
 			removeTestDir(tmpDir);
-		} 
+		}
 		catch(e) {
 			expect(removeTestDir.bind(removeTestDir, tmpDir)).to.throw(Error, "ENOENT, no such file or directory");
 		}
@@ -177,7 +177,7 @@ describe('Test config functionality', function() {
 	})
 
 	it('Should have default config values', function() {
-		var defaults = ['base', 'hasher', 'length', 'manifest', 'path', 'replace', 'save', 'template'];
+		var defaults = ['base', 'hasher', 'hashKey', 'length', 'manifest', 'path', 'replace', 'save', 'template'];
 		var	config = hasher.get();
 
 		expect(config).to.have.all.keys(defaults);
@@ -208,47 +208,47 @@ describe('Test config functionality', function() {
 
 describe('Test default config is valid', function() {
 
-	it('Should have a valid hasher', function() {
-		var hashers = crypto.getHashes();
-		var	myHasher = hasher.get('hasher');
-
-		expect(myHasher).to.be.a('string');
-		expect(hashers).to.be.an('array').and.contains(myHasher);
+	it('Default hasher should be sha1', function() {
+		expect(hasher.get('hasher')).to.be.a('string').and.be.equal('sha1');
 	})
 
-	it('Should have a base', function() {
-		expect(hasher.get('base')).to.be.a('string').and.not.be.empty;
+	it('Default hash key should be aH4urS', function() {
+		expect(hasher.get('hashKey')).to.be.a('string').and.be.equal('aH4urS');
 	})
 
-	it('Should have a valid length', function() {
-		expect(hasher.get('length')).to.be.a('number').and.be.at.least(10);
+	it('Default hash length should be 8', function() {
+		expect(hasher.get('length')).to.be.a('number').and.be.equal(8);
 	})
 
-	it('Should have a manifest file', function() {
-		expect(hasher.get('manifest')).to.match(/[a-zA-Z0-9_/\-]+\.json/)
+	it('Default replace should be false', function() {
+		expect(hasher.get('replace')).to.be.a('boolean').and.be.equal(false);
 	})
 
-	it('Should have a path', function() {
-		expect(hasher.get('path')).to.be.a('string').and.not.be.empty;
+	it('Defualt manifest file should be assets.json', function() {
+		expect(hasher.get('manifest')).to.match(/[a-zA-Z0-9_/\-]+\.json/).and.be.equal('assets.json');
 	})
 
-	it('Should have a boolean save value', function() {
-		expect(hasher.get('save')).to.be.a('boolean');
+	it('Default base should be .', function() {
+		expect(hasher.get('base')).to.be.a('string').and.be.equal('.');
 	})
 
-	it('Should have a hashed filename template', function() {
-		expect(hasher.get('template')).to.not.be.empty;
+	it('Default path should be .', function() {
+		expect(hasher.get('path')).to.be.a('string').and.be.equal('.');
 	})
 
-	it('Should have a replace option', function() {
-		expect(hasher.get('replace')).to.be.a('boolean');
+	it('Default save should be true', function() {
+		expect(hasher.get('save')).to.be.a('boolean').and.be.equal(true);
+	})
+
+	it('Default hashed filename template should be <%= name %>-<%= hash %>.<%= ext %>', function() {
+		expect(hasher.get('template')).to.be.a('string').and.be.equal('<%= name %>-<%= hash %>.<%= ext %>');
 	})
 
 	it('Should have a valid template format', function() {
 		hasher.set({template: '<%= name %>_<%= hash %>.<%= ext %>'});
 
 		addTestFiles(testFiles[0]);
-		
+
 		var hashInfo = hasher.hashFiles(testFiles[0]);
 
 		expect(hashInfo.original).to.equal(hashInfo.path.replace('_' + hashInfo.hash, ''));
@@ -267,7 +267,7 @@ describe('Test hashing functionality', function() {
 	afterEach(function() {
 		removeTestDir(tmpDir);
 	})
-	
+
 	it('Should get a list of hashers', function() {
 		expect(hasher.getHashers()).to.be.a('array').and.have.length.greaterThan(0);
 	})
