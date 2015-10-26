@@ -146,6 +146,14 @@ Type: String
 Default: ` sha1 `
 
 
+### hashKey
+
+The hash key will be appended to the beginning of each hash making it easy to identify hashed versions of a file.  This makes is really easy to identify old hashed files and remove them when new hashes are generated.
+
+Type: String
+Defualt: ` aH4urS `
+
+
 ### length
 
 Length of the generated hash.  This is the maximum length the hash can be.
@@ -204,3 +212,15 @@ hash.hashFile(file);
 hash.set({template: '<%= name %>__<%= hash %>.<%= ext %>'});
 hash.hashFile(file);
 ```
+
+
+## Change Log
+
+### [0.2.0] - 2015-10-26
+#### Feature
+- Added hashKey config option.  The hash key makes it easy to remove old hashed files which makes file maintenance when new hashes are generated super easy.
+- Updated dependency versions
+
+### [0.1.53] - 2015-08-7
+#### Fixed
+- Fixed issue where hashed files were being accidentally deleted. Example: if file.png and file-123.png were present when checking for old hashed file for file.png the hashed file for file-123.png would also be deleted because it was matched by the regex
