@@ -45,10 +45,16 @@ var AssetHasher = function() {
 	config.hasher = 'sha1';
 
 	/**
+	 * Hash key.  This will be used to make it easy to identify hashed versions of a file
+	 * @type {string}
+	 */
+	config.hashKey = 'aH4urS';
+
+	/**
 	 * The length of the generated hash.  Only used if generated hash is longer than length
 	 * @type {number}
 	 */
-	config.length = 10;
+	config.length = 8;
 
 	/**
 	 * Whether to replace original file or keep original file and create hashed file
@@ -130,7 +136,7 @@ var AssetHasher = function() {
 	var hashFile = function(file, options) {
 		var contents = '';
 		var filePath = '';
-		var patterns 	= [];
+		var patterns = [];
 
 		if (isFile(file)) {
 			contents = Buffer.isBuffer(file.contents) ? file.contents.toString() : file.contents;
@@ -143,7 +149,8 @@ var AssetHasher = function() {
 		var ext 		= path.extname(filePath);
 		var name		= path.basename(filePath, ext);
 		var dirPath		= path.dirname(filePath);
-		var hash 		= generateHash(contents, options.hasher, options.length);
+		var contentHash	= generateHash(contents, options.hasher, options.length);
+		var hash 		= (contentHash === '') ? '' : options.hashKey + contentHash;
 		var result 		= {
 			hashed: false,
 			original: filePath,
@@ -164,12 +171,12 @@ var AssetHasher = function() {
 			// Pattern to match previously hashed files
 			patterns.push(path.join(dirPath, _.template(options.template)({
 				name: name,
-				hash: '=HASHREGEX=',
+				hash: '==HASHREGEX==',
 				ext: ext.replace('.', '')
-			})).replace('=HASHREGEX=', '[0-9a-zA-Z]+'));
+			})).replace('==HASHREGEX==', options.hashKey + '*'));
 
 			// Find any previously hashed file versions
-			hashedOldFiles = glob.sync(patterns.join('|'));
+			var hashedOldFiles = glob.sync(patterns.join('|'));
 
 			// Delete old hash file(s)
 			hashedOldFiles.forEach(function(filePath) {
@@ -188,14 +195,14 @@ var AssetHasher = function() {
 
 			// Add file to or update asset library
 			assets[result.original] = result;
-		} 
+		}
 
 		return result;
 	};
 
 
 	return {
-		
+
 		/**
 		 * Update configuration options
 		 *
@@ -225,15 +232,15 @@ var AssetHasher = function() {
 		 * Hash file(s) based on path(s) provided.  Specified options will override same in config
 		 *
 		 * @param {string|array} paths The path or array of paths to files to hash
-		 * @param {object} options Options to use for specified files
+		 * @param {object} opt Options to use for specified files
 		 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing
 		 */
-		hashFiles: function(paths, options) {
-			var curConfig = _.clone(config);
+		hashFiles: function(paths, opt) {
+			var options = _.clone(config);
 			var results = [];
 
 			// Set config options to use for this hash session
-			_.assign(curConfig, options);
+			_.assign(options, opt);
 
 			if (!_.isArray(paths)) {
 				paths = [paths];
@@ -245,10 +252,10 @@ var AssetHasher = function() {
 					filePaths = glob.sync(filePaths);
 
 					filePaths.forEach(function(filePath) {
-						fileInfo = fs.lstatSync(filePath);
+						var fileInfo = fs.lstatSync(filePath);
 
 						if (fileInfo.isDirectory()) {
-							dirFiles = fs.readdirSync(filePath);
+							var dirFiles = fs.readdirSync(filePath);
 
 							dirFiles.forEach(function(dirFile) {
 								var curPath = path.join(filePath, dirFile);
@@ -257,15 +264,15 @@ var AssetHasher = function() {
 								if (curFileInfo.isDirectory()) {
 									results = results.concat(hashFiles(curPath, options));
 								} else if (curFileInfo.isFile()) {
-									results.push(hashFile(curPath, curConfig));
+									results.push(hashFile(curPath, options));
 								}
 							});
 						} else if (fileInfo.isFile()) {
-							results.push(hashFile(filePath, curConfig));
+							results.push(hashFile(filePath, options));
 						}
 					});
 				} else {
-					results.push(hashFile(filePaths, curConfig));
+					results.push(hashFile(filePaths, options));
 				}
 			});
 
@@ -275,7 +282,7 @@ var AssetHasher = function() {
 
 		/**
 		 * Get asset library information for a specified original file
-		 * 
+		 *
 		 * @param  {string} file The path to the original file.  This is based off the base directory specified in the config
 		 * @return {object}
 		 */
@@ -298,7 +305,7 @@ var AssetHasher = function() {
 		 * Get hashed file for specified original file.  Will return path to provided file if file is not in the asset library
 		 *
 		 * @param {string} file The original file to find hashed file for
-		 * @return {string} 
+		 * @return {string}
 		 */
 		getAssetFile: function(file) {
 			return _.isObject(assets[file]) ? assets[file].path : file;
@@ -331,15 +338,15 @@ var AssetHasher = function() {
 		/**
 		 * Save assets library to manifest file
 		 *
-		 * @param {object} options Options to configure the manifest file generated
+		 * @param {object} opt Options to configure the manifest file generated
 		 */
-		saveManifest: function(options) {
-			var curConfig = _.clone(config);
-			
-			_.assign(curConfig, options);
+		saveManifest: function(opt) {
+			var options = _.clone(config);
 
-			if (curConfig.manifest !== false && curConfig.manifest !== null)
-				fs.writeFileSync(path.join(curConfig.path, curConfig.manifest), JSON.stringify(assets));
+			_.assign(options, opt);
+
+			if (options.manifest !== false && options.manifest !== null)
+				fs.writeFileSync(path.join(options.path, options.manifest), JSON.stringify(assets));
 		},
 
 
