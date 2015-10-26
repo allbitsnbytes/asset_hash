@@ -132,65 +132,65 @@ These are the configuration options that can be set for the asset hasher.  Use .
 
 ### base
 
-The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.  
+The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.
 
-Type: String  
+Type: String
 Default: ` . `
 
 
 ### hasher
 
-The hash algorithm to used when generating content hash.
+The hash algorithm to use when generating content hash.
 
-Type: String  
+Type: String
 Default: ` sha1 `
 
 
 ### length
 
-Length of the generated hash.  This is the maximum length the hash can be.  
+Length of the generated hash.  This is the maximum length the hash can be.
 
-Type: Integer  
+Type: Integer
 Default: ` 10 `
 
 
 ### manifest
 
-The name to use for the manifest file.  If this value is empty string or false manifest file won't be saved.  
+The name to use for the manifest file.  If this value is an empty string or false manifest file won't be saved.
 
-Type: String  
+Type: String
 Default: ` assets.json `
 
 
 ### path
 
-The path where to save the manifest file.  
+The path where to save the manifest file.
 
-Type: String  
+Type: String
 Default: ` . `
 
 
 ### replace
 
-Set to true to replace the original file when hashed file is generated.  If set to false original file will be kept.  
+Set to true to replace the original file when hashed file is generated.  If set to false original file will be kept.
 
-Type: Boolean  
+Type: Boolean
 Default: ` false `
 
 
 ### save
 
-When a file is hashed, the hashed version of the file is automatically written to the file system.  For stream build systems like gulp this behavior is not desired.  In that case set this to false.  
+When a file is hashed, the hashed version of the file is automatically written to the file system.  For stream build systems like gulp this behavior is not desired.  In that case set this to false.
 
-Type: Boolean  
+Type: Boolean
 Default: ` true `
 
 
 ### template
 
-The template to use for the hashed file format.  
+The template to use for the hashed file format.
 
-Type: String  
+Type: String
 Default: ` <%= name %>-<%= hash %>.<%= ext %> `
 
 ```
