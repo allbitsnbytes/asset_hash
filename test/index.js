@@ -14,17 +14,43 @@ var vinyl		= require('vinyl-file');
 
 // Test variables
 
-var tmpDir		= './tmp/';
+var tmpDir		= 'tmp/';
 var testFiles	= [
-	path.join(tmpDir, 'img/bg.jpg'),
-	path.join(tmpDir, 'img/favicon.png'),
-	path.join(tmpDir, 'img/logo.png'),
-	path.join(tmpDir, 'css/landing.css'),
-	path.join(tmpDir, 'css/promos.css'),
-	path.join(tmpDir, 'css/styles.css'),
-	path.join(tmpDir, 'js/main.js'),
-	path.join(tmpDir, 'js/shoestring.min.js')
+	tmpDir + 'img/bg.jpg',
+	tmpDir + 'img/favicon.png',
+	tmpDir + 'img/logo.png',
+	tmpDir + 'css/landing.css',
+	tmpDir + 'css/promos.css',
+	tmpDir + 'css/styles.css',
+	tmpDir + 'js/main.js',
+	tmpDir + 'js/shoestring.min.js'
 ];
+
+var testManifestFilename = 'image-assets.json';
+var testManifest = {};
+
+testManifest[tmpDir + 'img/bg.jpg'] = {
+	hashed: false,
+	hash: '',
+	original: tmpDir + 'img/bg.jpg',
+	path: tmpDir + 'img/bg.jpg',
+	type: 'jpg'
+};
+testManifest[tmpDir + 'img/favicon.png'] = {
+	hashed: false,
+	hash: '',
+	original: tmpDir + 'img/favicon.png',
+	path: tmpDir + 'img/favicon.png',
+	type: 'png'
+};
+testManifest[tmpDir + 'img/logo.png'] = {
+	hashed: false,
+	hash: '',
+	original: tmpDir + 'img/logo.png',
+	path: tmpDir + 'img/logo.png',
+	type: 'png'
+};
+
 var jsDir		= path.join(tmpDir, 'js');
 
 
@@ -85,6 +111,31 @@ function addTestFiles(files) {
 
 		fs.writeFileSync(file, 'test file '+index);
 	});
+}
+
+
+/**
+ * Add test manifest file
+ *
+ * @param {string} filename The name of the file to create
+ * @param {object} contents The file contents
+ */
+function addTestManifest(filename, contents) {
+	var paths = filename.split('/');
+	var curDir = '';
+
+	while (paths.length > 0) {
+		curDir = path.join(curDir, paths.shift());
+
+		try {
+			fs.lstatSync(curDir);
+		}
+		catch(e) {
+			fs.mkdirSync(curDir);
+		}
+	}
+
+	fs.writeFileSync(filename, JSON.stringify(contents));
 }
 
 
@@ -157,7 +208,7 @@ describe('Test utility functions', function() {
 
 describe('Test methods exist', function() {
 
-	var methods = ['get', 'set', 'hashFiles', 'getAsset', 'getAssets', 'getAssetFile', 'resetAssets', 'saveManifest', 'updateAsset'];
+	var methods = ['get', 'set', 'hashFiles', 'loadManifest', 'getAsset', 'getAssets', 'getAssetFile', 'resetAssets', 'saveManifest', 'updateAsset'];
 
 	methods.forEach(function(method) {
 		it('Should have a ' + method + ' method', function() {
@@ -262,6 +313,7 @@ describe('Test hashing functionality', function() {
 
 	beforeEach(function() {
 		addTestFiles(testFiles);
+		hasher.resetAssets();
 	})
 
 	afterEach(function() {
@@ -456,6 +508,10 @@ describe('Test asset library and manifest', function() {
 		expect(_.keys(hasher.getAssets()).length).to.equal(testFiles.length);
 	})
 
+	it('Should load test manifest file');
+
+	it('Should add new hashed image to test manifest file');
+
 	it('Should save asset manifest file', function() {
 		var manifestFile = hasher.get('manifest');
 
@@ -465,6 +521,10 @@ describe('Test asset library and manifest', function() {
 
 		removeTestFiles(manifestFile);
 	})
+
+	it('Should merge new and existing manifest files');
+
+	it('Should overwrite existing manifest with new manifest files');
 
 	it('Should get hashed file for original file', function() {
 		hasher.hashFiles(testFiles[1]);
