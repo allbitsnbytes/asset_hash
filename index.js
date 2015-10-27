@@ -45,7 +45,7 @@ var AssetHasher = function() {
 	config.hasher = 'sha1';
 
 	/**
-	 * Hash key.  This will be used to make it easy to identify hashed versions of a file
+	 * The hash key is prepended to the hash.  This makes it easy to identify hashed versions of a file
 	 * @type {string}
 	 */
 	config.hashKey = 'aH4urS';
@@ -107,6 +107,30 @@ var AssetHasher = function() {
 
 
 	/**
+	 * Load assets from manifest if present
+	 *
+	 * @private
+	 * @param {object} options The options specified
+	 * @return {boolean} Whether the manifest was loaded
+	 */
+	var loadManifest = function(options) {
+		try {
+			var manifestPath = require.resolve(path.join(options.path, options.manifest));
+
+			if (!_.isEmpty(manifestPath)) {
+				assets = require(manifestPath) || {};
+console.log('== Manifest ==');
+console.dir(assets);
+				return true;
+			}
+		}
+		catch(e) {}
+
+		return false;
+	};
+
+
+	/**
 	 * Generate hash based on contents
 	 *
 	 * @private
@@ -138,6 +162,7 @@ var AssetHasher = function() {
 		var filePath = '';
 		var patterns = [];
 
+		// Get file contents and path
 		if (isFile(file)) {
 			contents = Buffer.isBuffer(file.contents) ? file.contents.toString() : file.contents;
 			filePath = path.relative(options.base, file.path);
@@ -146,55 +171,75 @@ var AssetHasher = function() {
 			filePath = path.relative(options.base, file);
 		}
 
+		// Get file name details
 		var ext 		= path.extname(filePath);
 		var name		= path.basename(filePath, ext);
 		var dirPath		= path.dirname(filePath);
-		var contentHash	= generateHash(contents, options.hasher, options.length);
-		var hash 		= (contentHash === '') ? '' : options.hashKey + contentHash;
+
+		// Initialize results object
 		var result 		= {
 			hashed: false,
+			hash: '',
 			original: filePath,
 			path: filePath,
-			hash: hash,
 			type: ext.replace('.', '')
 		};
 
-		// If file was hashed, set result object and rename/create hash file
-		if (hash !== '') {
-			result.hashed = true;
-			result.path = path.relative(options.base, path.join(dirPath, _.template(options.template)({
-				name: name,
-				hash: hash,
-				ext: ext.replace('.', '')
-			})));
+		// If this is a hashed file, return.  Nothing else to do here
+		var hashedVersion = _.isString(filePath) && filePath.indexOf(options.hashKey) === -1 ? false : true;
 
-			// Pattern to match previously hashed files
-			patterns.push(path.join(dirPath, _.template(options.template)({
-				name: name,
-				hash: '==HASHREGEX==',
-				ext: ext.replace('.', '')
-			})).replace('==HASHREGEX==', options.hashKey + '*'));
+		if (!hashedVersion) {
+			var originalPath = result.original;
 
-			// Find any previously hashed file versions
-			var hashedOldFiles = glob.sync(patterns.join('|'));
-
-			// Delete old hash file(s)
-			hashedOldFiles.forEach(function(filePath) {
-				fs.unlinkSync(filePath);
-			});
-
-			// Create new hashed file unless instructed to skip
-			if (options.save) {
-				fs.createReadStream(result.original).pipe(fs.createWriteStream(result.path));
+			// If file was already hashed, get old hash
+			if (assets[originalPath]) {
+				result.hashed = assets[originalPath].hashed;
+				result.hash = assets[originalPath].hash;
+				result.path = assets[originalPath].path;
+			} else {
+				result.hashed = true;
 			}
 
-			// Remove original file if necessary
-			if (options.replace) {
-				fs.unlinkSync(result.original);
-			}
+			// Generate hash from content
+			var newHash = options.hashKey + generateHash(contents, options.hasher, options.length);
 
-			// Add file to or update asset library
-			assets[result.original] = result;
+			// If hash was generated
+			if (result.hash !== newHash) {
+				result.hash =  newHash;
+				result.path = path.relative(options.base, path.join(dirPath, _.template(options.template)({
+					name: name,
+					hash: result.hash,
+					ext: result.type
+				})));
+
+				// Pattern to match previously hashed files
+				patterns.push(path.join(dirPath, _.template(options.template)({
+					name: name,
+					hash: '==HASHREGEX==',
+					ext: result.type
+				})).replace('==HASHREGEX==', options.hashKey + '*'));
+
+				// Find any previously hashed file versions
+				var hashedOldFiles = glob.sync(patterns.join('|'));
+
+				// Delete old hash file(s)
+				hashedOldFiles.forEach(function(filePath) {
+					fs.unlinkSync(filePath);
+				});
+
+				// Create new hashed file unless instructed to skip
+				if (options.save) {
+					fs.createReadStream(originalPath).pipe(fs.createWriteStream(result.path));
+				}
+
+				// Remove original file if necessary
+				if (options.replace) {
+					fs.unlinkSync(originalPath);
+				}
+
+				// Add file to or update asset library
+				assets[originalPath] = result;
+			}
 		}
 
 		return result;
@@ -246,6 +291,8 @@ var AssetHasher = function() {
 				paths = [paths];
 			}
 
+			loadManifest(options);
+
 			// Process files for each path
 			paths.forEach(function(filePaths) {
 				if (_.isString(filePaths)) {
@@ -277,6 +324,18 @@ var AssetHasher = function() {
 			});
 
 			return results.length > 1 ? results : results.shift();
+		},
+
+
+		/**
+		 * Load assets from manifest if present
+		 *
+		 * @private
+		 * @param {object} options The options specified
+		 * @return {boolean} Whether the manifest was loaded
+		 */
+		loadManifest: function(options) {
+			return loadManifest(options);
 		},
 
 
