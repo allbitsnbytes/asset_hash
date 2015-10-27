@@ -1,6 +1,6 @@
 # Asset Hash
 
-Small library to hash filenames for static assets.  The hash is computed from the file contents so the hash only changes when the file actually changes.  A manifest file is generated which maps the original file path to the hashed file path. (example:  style.css => style-g7ba80c.css)
+Small library to hash filenames for static assets.  The hash is computed from the file contents so the hash only changes when the file actually changes.  A manifest file is generated which maps the original file path to the hashed file path (example:  style.css => style-g7ba80c.css).
 
 
 
@@ -140,7 +140,7 @@ Default: ` . `
 
 ### hasher
 
-The hash algorithm to use when generating content hash.
+The hash algorithm to use when generating content hash.  Supported algorithms include md5, sha1, sha256, sha512, ... (Node crypto algorithms).
 
 Type: String
 Default: ` sha1 `
@@ -164,7 +164,7 @@ Default: ` 10 `
 
 ### manifest
 
-The name to use for the manifest file.  If this value is an empty string or false manifest file won't be saved.
+The name to use for the manifest file.  If this value is an empty string or false the manifest file won't be created.
 
 Type: String
 Default: ` assets.json `
@@ -218,9 +218,11 @@ hash.hashFile(file);
 
 ### [0.2.0] - 2015-10-26
 #### Feature
-- Added hashKey config option.  The hash key makes it easy to remove old hashed files which makes file maintenance when new hashes are generated super easy.
-- Updated dependency versions
+- Added hashKey config option.  This makes it easier to manage old hashed files.
+
+#### Misc
+- Updated dependency versions.
 
 ### [0.1.53] - 2015-08-7
 #### Fixed
-- Fixed issue where hashed files were being accidentally deleted. Example: if file.png and file-123.png were present when checking for old hashed file for file.png the hashed file for file-123.png would also be deleted because it was matched by the regex
+- Fixed issue where hashed files were being accidentally deleted. Example: if file.png and file-123.png were present when checking for old hashed file for file.png the hashed file for file-123.png would also be deleted because it was matched by the regex.

@@ -32,6 +32,7 @@
   },
   "keywords": [
     "asset",
+    "caching",
     "hash",
     "optimizer",
     "rev",
