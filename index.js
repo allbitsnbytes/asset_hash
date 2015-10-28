@@ -72,13 +72,13 @@ var AssetHasher = function() {
 	 * The base directory from which to save assets
 	 * @type {string}
 	 */
-	config.base = '.';
+	config.base = process.cwd();
 
 	/**
 	 * Path where to save manifest file
 	 * @type {string}
 	 */
-	config.path = '.';
+	config.path = process.cwd();
 
 	/**
 	 * Set this to false to skip saving hashed files.  Hashed filename will be generated and added to asset library but not saved to file system.
@@ -113,14 +113,15 @@ var AssetHasher = function() {
 	 * @param {object} options The options specified
 	 * @return {boolean} Whether the manifest was loaded
 	 */
-	var loadManifest = function(options) {
+	var loadManifest = function(opt) {
+		var options = _.clone(config);
+		_.assign(options, opt);
+
 		try {
-			var manifestPath = require.resolve(path.join(options.path, options.manifest));
+			var manifestPath = path.join(options.path, options.manifest);
 
 			if (!_.isEmpty(manifestPath)) {
-				assets = require(manifestPath) || {};
-console.log('== Manifest ==');
-console.dir(assets);
+				assets = require(path.join(process.cwd(), manifestPath)) || {};
 				return true;
 			}
 		}
@@ -404,7 +405,7 @@ console.dir(assets);
 
 			_.assign(options, opt);
 
-			if (options.manifest !== false && options.manifest !== null)
+			if (options.manifest !== false && (typeof options.manifest === 'string' && options.manifest !== ''))
 				fs.writeFileSync(path.join(options.path, options.manifest), JSON.stringify(assets));
 		},
 
