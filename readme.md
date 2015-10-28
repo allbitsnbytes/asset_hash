@@ -101,6 +101,20 @@ hash.resetAssets();
 ```
 
 
+### .loadManifest(options)
+
+Load specified manifest file.
+
+```
+var hash = require('asset_hash');
+
+hash.loadManifest({
+	manifest: 'js-assets.json',
+	path: 'assets/js'
+});
+```
+
+
 ### .saveManifest(options)
 
 Save manifest file. Options can be passed to specify where to save the manifest file and what name to use.
@@ -135,7 +149,7 @@ These are the configuration options that can be set for the asset hasher.  Use .
 The base directory for where to save assets.  Path for assets in the manifest file will be relative to this location.
 
 Type: String
-Default: ` . `
+Default: ` process.cwd() `
 
 
 ### hasher
@@ -164,7 +178,7 @@ Default: ` 10 `
 
 ### manifest
 
-The name to use for the manifest file.  If this value is an empty string or false the manifest file won't be created.
+The name to use for the manifest file.  If this value is false the manifest file won't be saved.
 
 Type: String
 Default: ` assets.json `
@@ -175,7 +189,7 @@ Default: ` assets.json `
 The path where to save the manifest file.
 
 Type: String
-Default: ` . `
+Default: ` process.cwd() `
 
 
 ### replace
