@@ -29,18 +29,18 @@ var testFiles	= [
 var testManifestFilename = 'image-assets.json';
 var testManifest = {};
 
-testManifest[tmpDir + 'img/bg.jpg'] = {
+testManifest[tmpDir + 'js/main.js'] = {
 	hashed: false,
 	hash: '',
-	original: tmpDir + 'img/bg.jpg',
-	path: tmpDir + 'img/bg.jpg',
+	original: tmpDir + 'js/main.js',
+	path: tmpDir + 'js/main.js',
 	type: 'jpg'
 };
-testManifest[tmpDir + 'img/favicon.png'] = {
+testManifest[tmpDir + 'css/landing.css'] = {
 	hashed: false,
 	hash: '',
-	original: tmpDir + 'img/favicon.png',
-	path: tmpDir + 'img/favicon.png',
+	original: tmpDir + 'css/landing.css',
+	path: tmpDir + 'css/landing.css',
 	type: 'png'
 };
 testManifest[tmpDir + 'img/logo.png'] = {
@@ -121,7 +121,7 @@ function addTestFiles(files) {
  * @param {object} contents The file contents
  */
 function addTestManifest(filename, contents) {
-	var paths = filename.split('/');
+	var paths = path.dirname(filename).split('/');
 	var curDir = '';
 
 	while (paths.length > 0) {
@@ -272,23 +272,23 @@ describe('Test default config is valid', function() {
 	})
 
 	it('Default replace should be false', function() {
-		expect(hasher.get('replace')).to.be.a('boolean').and.be.equal(false);
+		expect(hasher.get('replace')).to.be.a('boolean').and.be.false;
 	})
 
 	it('Defualt manifest file should be assets.json', function() {
 		expect(hasher.get('manifest')).to.match(/[a-zA-Z0-9_/\-]+\.json/).and.be.equal('assets.json');
 	})
 
-	it('Default base should be .', function() {
-		expect(hasher.get('base')).to.be.a('string').and.be.equal('.');
+	it('Default base should be process.cwd()', function() {
+		expect(hasher.get('base')).to.be.a('string').and.be.equal(process.cwd());
 	})
 
-	it('Default path should be .', function() {
-		expect(hasher.get('path')).to.be.a('string').and.be.equal('.');
+	it('Default path should be process.cwd()', function() {
+		expect(hasher.get('path')).to.be.a('string').and.be.equal(process.cwd());
 	})
 
 	it('Default save should be true', function() {
-		expect(hasher.get('save')).to.be.a('boolean').and.be.equal(true);
+		expect(hasher.get('save')).to.be.a('boolean').and.be.true;
 	})
 
 	it('Default hashed filename template should be <%= name %>-<%= hash %>.<%= ext %>', function() {
@@ -459,6 +459,7 @@ describe('Test asset library and manifest', function() {
 
 	beforeEach(function() {
 		addTestFiles(testFiles);
+		addTestManifest(tmpDir + testManifestFilename, testManifest);
 	})
 
 	afterEach(function() {
@@ -508,23 +509,40 @@ describe('Test asset library and manifest', function() {
 		expect(_.keys(hasher.getAssets()).length).to.equal(testFiles.length);
 	})
 
-	it('Should load test manifest file');
+	it('Should load test manifest file', function() {
+		var loaded = hasher.loadManifest({
+			manifest: testManifestFilename,
+			path: tmpDir
+		});
+		var assets = hasher.getAssets();
 
-	it('Should add new hashed image to test manifest file');
+		expect(loaded).to.be.true;
+		expect(Object.keys(testManifest).length).to.equal(Object.keys(assets).length);
+	});
+
+	it('Should add new hashed image to test manifest file', function() {
+		hasher.loadManifest({
+			manifest: testManifestFilename,
+			path: tmpDir
+		});
+
+		var initialAssets = _.clone(hasher.getAssets());
+
+		hasher.hashFiles(testFiles[0]);
+
+		var finalAssets = hasher.getAssets();
+
+		expect(finalAssets[testFiles[0]]).to.not.be.undefined;
+		expect(Object.keys(finalAssets).length).to.equal(Object.keys(initialAssets).length + 1);
+	});
 
 	it('Should save asset manifest file', function() {
 		var manifestFile = hasher.get('manifest');
 
-		hasher.saveManifest();
+		hasher.saveManifest({path: tmpDir});
 
-		expect(fs.lstatSync(manifestFile).isFile()).to.be.ok;
-
-		removeTestFiles(manifestFile);
+		expect(fs.lstatSync(path.join(tmpDir, manifestFile)).isFile()).to.be.ok;
 	})
-
-	it('Should merge new and existing manifest files');
-
-	it('Should overwrite existing manifest with new manifest files');
 
 	it('Should get hashed file for original file', function() {
 		hasher.hashFiles(testFiles[1]);
@@ -539,18 +557,16 @@ describe('Test asset library and manifest', function() {
 		var oldManifestFile = hasher.get('manifest');
 		var manifestFile = 'test_manifest.json';
 
-		hasher.saveManifest({manifest: manifestFile});
+		hasher.saveManifest({manifest: manifestFile, path: tmpDir});
 
 		expect(manifestFile).to.not.equal(oldManifestFile);
-		expect(fs.lstatSync(manifestFile).isFile()).to.be.ok;
-
-		removeTestFiles(manifestFile);
+		expect(fs.lstatSync(path.join(tmpDir, manifestFile)).isFile()).to.be.ok;
 	})
 
 	it('Should not save a manifest file if manifest config is false or null', function() {
-		var manifestFile = path.join(hasher.get('path'), hasher.get('manifest'));
+		var manifestFile = path.join(tmpDir, hasher.get('manifest'));
 
-		hasher.set({manifest: false});
+		hasher.set({manifest: false, path: tmpDir});
 		hasher.hashFiles(testFiles[0]);
 		hasher.saveManifest();
 
