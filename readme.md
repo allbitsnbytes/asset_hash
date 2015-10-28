@@ -230,6 +230,13 @@ hash.hashFile(file);
 
 ## Change Log
 
+### [0.2.1] - 2015-10-28
+#### Feature
+- Added loadManifest method
+
+#### Misc
+- Added more tests and refactored some code
+
 ### [0.2.0] - 2015-10-26
 #### Feature
 - Added hashKey config option.  This makes it easier to manage old hashed files.
