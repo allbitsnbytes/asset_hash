@@ -78,7 +78,7 @@ var AssetHasher = function() {
 	 * Path where to save manifest file
 	 * @type {string}
 	 */
-	config.path = process.cwd();
+	config.path = '';
 
 	/**
 	 * Set this to false to skip saving hashed files.  Hashed filename will be generated and added to asset library but not saved to file system.

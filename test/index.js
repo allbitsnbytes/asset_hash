@@ -283,8 +283,8 @@ describe('Test default config is valid', function() {
 		expect(hasher.get('base')).to.be.a('string').and.be.equal(process.cwd());
 	})
 
-	it('Default path should be process.cwd()', function() {
-		expect(hasher.get('path')).to.be.a('string').and.be.equal(process.cwd());
+	it('Default path should be empty string', function() {
+		expect(hasher.get('path')).to.be.a('string').and.be.equal('');
 	})
 
 	it('Default save should be true', function() {

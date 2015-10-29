@@ -109,8 +109,8 @@ Load specified manifest file.
 var hash = require('asset_hash');
 
 hash.loadManifest({
-	manifest: 'js-assets.json',
-	path: 'assets/js'
+	manifest: 'images.json',
+	path: 'assets/images'
 });
 ```
 
@@ -186,10 +186,10 @@ Default: ` assets.json `
 
 ### path
 
-The path where to save the manifest file.
+The path where to save the manifest file.  This should be relative to base path.
 
 Type: String
-Default: ` process.cwd() `
+Default: ` '' `
 
 
 ### replace
