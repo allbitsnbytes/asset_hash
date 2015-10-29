@@ -23,7 +23,8 @@ var testFiles	= [
 	tmpDir + 'css/promos.css',
 	tmpDir + 'css/styles.css',
 	tmpDir + 'js/main.js',
-	tmpDir + 'js/shoestring.min.js'
+	tmpDir + 'js/shoestring.min.js',
+	tmpDir + 'js/jquery/jquery.min.js'
 ];
 
 var testManifestFilename = 'image-assets.json';

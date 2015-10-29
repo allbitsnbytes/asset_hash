@@ -247,6 +247,60 @@ var AssetHasher = function() {
 	};
 
 
+	/**
+	 * Hash file(s) based on path(s) provided.  Specified options will override same in config
+	 *
+	 * @private
+	 * @param {string|array} paths The path or array of paths to files to hash
+	 * @param {object} opt Options to use for specified files
+	 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing
+	 */
+	var hashFiles = function(paths, opt) {
+		var options = _.clone(config);
+		var results = [];
+
+		// Set config options to use for this hash session
+		_.assign(options, opt);
+
+		if (!_.isArray(paths)) {
+			paths = [paths];
+		}
+
+		loadManifest(options);
+
+		// Process files for each path
+		paths.forEach(function(filePaths) {
+			if (_.isString(filePaths)) {
+				filePaths = glob.sync(filePaths);
+
+				filePaths.forEach(function(filePath) {
+					var fileInfo = fs.lstatSync(filePath);
+
+					if (fileInfo.isDirectory()) {
+						var dirFiles = fs.readdirSync(filePath);
+
+						dirFiles.forEach(function(dirFile) {
+							var curPath = path.join(filePath, dirFile);
+							var curFileInfo = fs.lstatSync(curPath);
+
+							if (curFileInfo.isDirectory()) {
+								results = results.concat(hashFiles(curPath, options));
+							} else if (curFileInfo.isFile()) {
+								results.push(hashFile(curPath, options));
+							}
+						});
+					} else if (fileInfo.isFile()) {
+						results.push(hashFile(filePath, options));
+					}
+				});
+			} else {
+				results.push(hashFile(filePaths, options));
+			}
+		});
+
+		return results.length > 1 ? results : results.shift();
+	};
+
 	return {
 
 		/**
@@ -282,49 +336,7 @@ var AssetHasher = function() {
 		 * @return {array|object} Single object for single file or array of objects for each file.  Object will have result of file hashing
 		 */
 		hashFiles: function(paths, opt) {
-			var options = _.clone(config);
-			var results = [];
-
-			// Set config options to use for this hash session
-			_.assign(options, opt);
-
-			if (!_.isArray(paths)) {
-				paths = [paths];
-			}
-
-			loadManifest(options);
-
-			// Process files for each path
-			paths.forEach(function(filePaths) {
-				if (_.isString(filePaths)) {
-					filePaths = glob.sync(filePaths);
-
-					filePaths.forEach(function(filePath) {
-						var fileInfo = fs.lstatSync(filePath);
-
-						if (fileInfo.isDirectory()) {
-							var dirFiles = fs.readdirSync(filePath);
-
-							dirFiles.forEach(function(dirFile) {
-								var curPath = path.join(filePath, dirFile);
-								var curFileInfo = fs.lstatSync(curPath);
-
-								if (curFileInfo.isDirectory()) {
-									results = results.concat(hashFiles(curPath, options));
-								} else if (curFileInfo.isFile()) {
-									results.push(hashFile(curPath, options));
-								}
-							});
-						} else if (fileInfo.isFile()) {
-							results.push(hashFile(filePath, options));
-						}
-					});
-				} else {
-					results.push(hashFile(filePaths, options));
-				}
-			});
-
-			return results.length > 1 ? results : results.shift();
+			return hashFiles(paths, opt);
 		},
 
 
