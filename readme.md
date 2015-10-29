@@ -230,12 +230,17 @@ hash.hashFile(file);
 
 ## Change Log
 
-### [0.2.1] - 2015-10-28
+### [0.2.1] - 2015-10-29
 #### Feature
 - Added loadManifest method
 
+#### Fixed
+- Fixed bug that broke execution when hashing files in directories 2 or more levels deep
+
 #### Misc
 - Added more tests and refactored some code
+- Path now defaults to empty string
+- Base not defaults to current working directory
 
 ### [0.2.0] - 2015-10-26
 #### Feature
